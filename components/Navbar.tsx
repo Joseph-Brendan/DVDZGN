@@ -36,9 +36,11 @@ export function Navbar() {
 
                     {/* Desktop Nav */}
                     <div className="hidden md:flex md:items-center md:space-x-8">
-                        <Link href="/bootcamps" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
-                            Bootcamps
-                        </Link>
+                        {(session || !pathname?.startsWith("/bootcamps")) && (
+                            <Link href="/bootcamps" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
+                                Bootcamps
+                            </Link>
+                        )}
 
                         {session ? (
                             <>
@@ -85,13 +87,15 @@ export function Navbar() {
             {isMenuOpen && (
                 <div className="md:hidden border-t border-zinc-100 bg-white">
                     <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                        <Link
-                            href="/bootcamps"
-                            className="block px-3 py-2 rounded-md text-base font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50"
-                            onClick={() => setIsMenuOpen(false)}
-                        >
-                            Bootcamps
-                        </Link>
+                        {(session || !pathname?.startsWith("/bootcamps")) && (
+                            <Link
+                                href="/bootcamps"
+                                className="block px-3 py-2 rounded-md text-base font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50"
+                                onClick={() => setIsMenuOpen(false)}
+                            >
+                                Bootcamps
+                            </Link>
+                        )}
                         {session ? (
                             <>
                                 <Link
