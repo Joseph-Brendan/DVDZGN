@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { signIn, getProviders } from "next-auth/react"
 import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { toast } from "sonner"
 
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -75,19 +76,21 @@ export default function SignupPage() {
                 })
 
                 if (result?.ok) {
+                    toast.success("Account created successfully!")
                     router.push("/dashboard")
                     router.refresh()
                 } else {
-                    console.error("Sign in after registration failed")
+                    toast.error("Account created, but auto-login failed. Please log in manually.")
                     setIsLoading(false)
                 }
             } else {
                 const data = await res.json()
-                console.error("Registration failed:", data.error)
+                toast.error(data.error || "Registration failed. Please try again.")
                 setIsLoading(false)
             }
         } catch (error) {
             console.error("An error occurred", error)
+            toast.error("Something went wrong. Please try again.")
             setIsLoading(false)
         }
     }

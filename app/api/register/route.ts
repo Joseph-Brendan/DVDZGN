@@ -35,8 +35,10 @@ export async function POST(req: Request) {
             },
         })
 
-        // Send welcome email
-        await sendWelcomeEmail(email, name)
+        // Send welcome email (fire-and-forget, don't block registration)
+        sendWelcomeEmail(email, name).catch((err) =>
+            console.error("Failed to send welcome email:", err)
+        )
 
         return NextResponse.json(user)
     } catch (error) {
