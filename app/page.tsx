@@ -4,7 +4,13 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
 export default async function Home() {
-    const session = await getServerSession(authOptions);
+    let session = null;
+    try {
+        session = await getServerSession(authOptions);
+    } catch (error) {
+        console.error("Session error:", error);
+        // This usually means invalid cookie, treat as logged out
+    }
 
     return (
         <main className="h-screen w-full flex flex-col items-center justify-center md:justify-start md:pt-56 pt-40 p-4 overflow-hidden relative">
