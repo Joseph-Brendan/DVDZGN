@@ -3,6 +3,8 @@ import { ArrowRight } from "lucide-react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 export default async function Home() {
     let session = null;
     try {

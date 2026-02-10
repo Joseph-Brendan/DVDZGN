@@ -6,7 +6,9 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle2, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
 
-export default function PaymentSuccessPage() {
+import { Suspense } from "react"
+
+function PaymentSuccessContent() {
     const searchParams = useSearchParams()
     const router = useRouter()
     const bootcampId = searchParams.get("bootcampId")
@@ -77,5 +79,17 @@ export default function PaymentSuccessPage() {
                 )}
             </div>
         </div>
+    )
+}
+
+export default function PaymentSuccessPage() {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">
+                <Loader2 className="h-12 w-12 text-primary animate-spin" />
+            </div>
+        }>
+            <PaymentSuccessContent />
+        </Suspense>
     )
 }
