@@ -4,7 +4,7 @@ import { authOptions } from "@/lib/auth"
 import Stripe from "stripe"
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-    apiVersion: "2025-01-27.acacia", // Use latest or matching version
+    apiVersion: "2026-01-28.clover", // Updated to match installed types
 })
 
 export async function POST(req: Request) {

@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { closePaymentModal, useFlutterwave } from "flutterwave-react-v3"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
@@ -16,10 +17,11 @@ interface FlutterwavePaymentProps {
 
 export default function FlutterwavePaymentButton({ amount, email, name, phone, bootcampId, title }: FlutterwavePaymentProps) {
     const router = useRouter()
+    const [txRef] = useState(() => Date.now().toString())
 
     const config = {
         public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || "", // Use env var placeholder
-        tx_ref: Date.now().toString(),
+        tx_ref: txRef,
         amount: amount,
         currency: "NGN",
         payment_options: "card,mobilemoney,ussd",

@@ -7,6 +7,11 @@ import { Button } from "@/components/ui/button"
 import { BackButton } from "@/components/ui/back-button"
 import { Check, Users, Video, Calendar } from "lucide-react"
 
+interface Module {
+    title: string
+    lessons: string[]
+}
+
 export default async function BootcampDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params
     const session = await getServerSession(authOptions)
@@ -111,7 +116,7 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                 <div className="max-w-4xl mx-auto space-y-8">
                     <h2 className="text-2xl font-semibold tracking-tight">Curriculum</h2>
                     <div className="space-y-4">
-                        {curriculum.map((module: any, idx: number) => (
+                        {curriculum.map((module: Module, idx: number) => (
                             <div key={idx} className="border border-zinc-200 rounded-xl p-6 bg-white">
                                 <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
                                     <span className="text-primary/50 font-mono text-sm">0{idx + 1}</span>

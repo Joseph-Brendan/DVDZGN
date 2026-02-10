@@ -31,9 +31,7 @@ export default function ResetPasswordPage() {
             <div className="w-full max-w-[400px] space-y-6">
                 <div className="space-y-2 text-center">
                     <h1 className="text-2xl font-semibold tracking-tight">Reset Password</h1>
-                    <p className="text-sm text-zinc-500">
-                        Enter your email address and we'll send you a link to reset your password
-                    </p>
+                    Enter your email address and we&apos;ll send you a link to reset your password
                 </div>
 
                 {!isSubmitted ? (
