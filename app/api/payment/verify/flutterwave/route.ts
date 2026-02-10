@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { sendEnrollmentEmail } from "@/lib/email"
 
 export async function POST(req: Request) {
     try {
@@ -106,8 +107,8 @@ export async function POST(req: Request) {
             }
         })
 
-        // 5. Send Email (Optional/Future)
-        // await sendEnrollmentEmail(user.email, bootcampId)
+        // 5. Send Email
+        await sendEnrollmentEmail(user.email!, bootcamp.title)
 
         return NextResponse.json({ success: true })
 

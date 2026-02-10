@@ -4,6 +4,7 @@ import GoogleProvider from "next-auth/providers/google"
 import { PrismaAdapter } from "@next-auth/prisma-adapter"
 import { prisma } from "@/lib/prisma"
 import { compare } from "bcryptjs"
+import { sendWelcomeEmail } from "@/lib/email"
 
 // Build providers array conditionally
 const providers: NextAuthOptions["providers"] = [
@@ -77,6 +78,18 @@ export const authOptions: NextAuthOptions = {
                 token.id = user.id
             }
             return token
+        }
+    },
+    events: {
+        async createUser(message) {
+            console.log("EVENT: createUser triggered", message)
+            const { user } = message
+            if (user.email && user.name) {
+                console.log("EVENT: Sending welcome email to", user.email)
+                await sendWelcomeEmail(user.email, user.name)
+            } else {
+                console.log("EVENT: Missing email or name", user)
+            }
         }
     }
 }

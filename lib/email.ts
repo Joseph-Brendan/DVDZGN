@@ -28,17 +28,15 @@ export async function sendEnrollmentEmail(email: string, bootcampName: string) {
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
       to: email,
-      subject: `You're registered — ${bootcampName}`,
+      subject: "Congratulations!",
       text: `
-Hi there,
+Welcome to our ${bootcampName} Bootcamp
 
-You have successfully registered for ${bootcampName}.
+Here are your next steps.
+- Join the discord server using this link: https://discord.gg/devdesignhq
+- Reach out to your programs manager here if you are unable to Join the discord server: https://wa.me/
 
-Join our community Discord here: {{DISCORD_INVITE_LINK}}
-
-NOTE: Live classes happen on Google Meet. Links will be shared in the community and via email before sessions start.
-
-See you there!
+See You In Class
 `,
     })
 
@@ -51,8 +49,12 @@ See you there!
 }
 
 export async function sendWelcomeEmail(email: string, name: string) {
+  console.log("Attempting to send welcome email to:", email)
   if (!transporter) {
     console.warn("SMTP not configured. Skipping welcome email to:", email)
+    console.log("ENV CHECK - SMTP_HOST:", !!process.env.SMTP_HOST)
+    console.log("ENV CHECK - SMTP_USER:", !!process.env.SMTP_USER)
+    console.log("ENV CHECK - SMTP_PASS:", !!process.env.SMTP_PASS)
     return false
   }
 
@@ -60,15 +62,17 @@ export async function sendWelcomeEmail(email: string, name: string) {
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
       to: email,
-      subject: "Welcome to Dev and Design!",
+      subject: "Welcome to the Dev and Design Community! 🚀",
       text: `
 Hi ${name},
 
-Welcome to Dev and Design! We're excited to have you on board.
+Welcome to Dev and Design! We're thrilled to have you join our community of builders and creators.
 
-Start exploring our bootcamps and courses today.
+To get started, feel free to explore our available bootcamps and courses. Whether you're here to master a new skill or refine your craft, we're here to support your journey.
 
-Best,
+If you have any questions, just reply to this email.
+
+Happy building,
 The Dev and Design Team
 `,
     })

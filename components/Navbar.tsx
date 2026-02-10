@@ -4,13 +4,56 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { Menu, X } from "lucide-react"
+import { Menu, X, Trash2, Mail, User } from "lucide-react"
 import { useState } from "react"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
 export function Navbar() {
     const { data: session } = useSession()
+    const router = useRouter()
     const pathname = usePathname()
     const [isMenuOpen, setIsMenuOpen] = useState(false)
+    const [showDeleteModal, setShowDeleteModal] = useState(false)
+    const [isDeleting, setIsDeleting] = useState(false)
+
+    const handleDeleteAccount = async () => {
+        setIsDeleting(true)
+        try {
+            const res = await fetch("/api/user/delete", {
+                method: "DELETE",
+            })
+
+            if (res.ok) {
+                toast.success("Account deleted successfully")
+                signOut({ callbackUrl: "/" })
+            } else {
+                toast.error("Failed to delete account")
+            }
+        } catch (error) {
+            console.error("Delete error:", error)
+            toast.error("Something went wrong")
+        } finally {
+            setIsDeleting(false)
+            setShowDeleteModal(false)
+        }
+    }
 
     // Hide navbar on auth pages if desired, but user asked for "across all pages"
     // Usually clean auth pages are better, but let's stick to "across all pages" or maybe just minimal on auth.
@@ -47,16 +90,31 @@ export function Navbar() {
                                 <Link href="/dashboard" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
                                     Dashboard
                                 </Link>
-                                <Button
-                                    variant="ghost"
-                                    onClick={() => signOut({ callbackUrl: "/" })}
-                                    className="text-sm font-medium text-zinc-500 hover:text-red-600"
-                                >
-                                    Logout
-                                </Button>
-                                <div className="px-3 py-1.5 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs">
-                                    Welcome, {session.user?.name?.split(" ")[0] || "User"}
-                                </div>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <button className="px-3 py-1.5 rounded-full bg-primary/10 flex items-center justify-center text-primary font-medium text-xs hover:bg-primary/20 transition-colors focus:outline-none">
+                                            Welcome, {session.user?.name?.split(" ")[0] || "User"}
+                                        </button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end" className="w-56">
+                                        <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem asChild>
+                                            <a href="mailto:learn@devdesignhq.com" className="cursor-pointer">
+                                                <Mail className="mr-2 h-4 w-4" />
+                                                <span>Contact Us</span>
+                                            </a>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                                            onSelect={() => setShowDeleteModal(true)}
+                                        >
+                                            <Trash2 className="mr-2 h-4 w-4" />
+                                            <span>Delete Account</span>
+                                        </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
                             </>
                         ) : (
                             pathname !== "/auth/login" && (
@@ -129,6 +187,34 @@ export function Navbar() {
                     </div>
                 </div>
             )}
+            {/* Delete Account Modal */}
+            <Dialog open={showDeleteModal} onOpenChange={setShowDeleteModal}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Delete Account</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete your account? This action cannot be undone.
+                            All your enrollments and data will be permanently removed.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="gap-2 sm:gap-0">
+                        <Button
+                            variant="outline"
+                            onClick={() => setShowDeleteModal(false)}
+                            disabled={isDeleting}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteAccount}
+                            disabled={isDeleting}
+                        >
+                            {isDeleting ? "Deleting..." : "Delete Account"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </nav>
     )
 }
