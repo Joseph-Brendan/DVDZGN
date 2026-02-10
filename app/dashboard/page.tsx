@@ -8,6 +8,8 @@ import { redirect } from "next/navigation"
 
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard"
 
+export const dynamic = "force-dynamic"
+
 export default async function DashboardPage() {
     const session = await getServerSession(authOptions)
 

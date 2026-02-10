@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button"
 import { CheckCircle } from "lucide-react"
 import CheckoutForm from "./CheckoutForm"
 
+export const dynamic = "force-dynamic"
+
 export default async function CheckoutPage({ params }: { params: Promise<{ bootcampId: string }> }) {
     const { bootcampId } = await params
     const session = await getServerSession(authOptions)
