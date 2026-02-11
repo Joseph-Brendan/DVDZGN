@@ -53,19 +53,13 @@ export async function POST(req: Request) {
         }
 
         if (!user) {
-            // Fallback to transaction email (e.g. if session expired or guest)
-            // But for this app, we require login.
+            // Fallback to transaction email if session expired
             user = await prisma.user.findUnique({
                 where: { email: customer.email }
             })
 
             if (!user) {
-                user = await prisma.user.create({
-                    data: {
-                        email: customer.email,
-                        name: customer.name || "Student",
-                    }
-                })
+                return NextResponse.json({ error: "User not found. Please log in and try again." }, { status: 401 })
             }
         }
 

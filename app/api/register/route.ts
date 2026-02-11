@@ -7,9 +7,25 @@ export async function POST(req: Request) {
     try {
         const { name, email, password } = await req.json()
 
-        if (!email || !password) {
+        if (!email || !password || !name) {
             return NextResponse.json(
                 { error: "Missing required fields" },
+                { status: 400 }
+            )
+        }
+
+        // Basic input validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+        if (!emailRegex.test(email)) {
+            return NextResponse.json(
+                { error: "Invalid email format" },
+                { status: 400 }
+            )
+        }
+
+        if (password.length < 8) {
+            return NextResponse.json(
+                { error: "Password must be at least 8 characters" },
                 { status: 400 }
             )
         }
@@ -25,7 +41,7 @@ export async function POST(req: Request) {
             )
         }
 
-        const hashedPassword = await hash(password, 10)
+        const hashedPassword = await hash(password, 8)
 
         const user = await prisma.user.create({
             data: {
