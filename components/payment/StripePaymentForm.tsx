@@ -5,7 +5,7 @@ import { useStripe, useElements, PaymentElement } from "@stripe/react-stripe-js"
 import { Button } from "@/components/ui/button"
 import { Loader2 } from "lucide-react"
 
-export default function StripePaymentForm({ amount }: { amount: number }) {
+export default function StripePaymentForm({ amount, bootcampId }: { amount: number; bootcampId: string }) {
     const stripe = useStripe()
     const elements = useElements()
     const [isLoading, setIsLoading] = useState(false)
@@ -22,7 +22,7 @@ export default function StripePaymentForm({ amount }: { amount: number }) {
         const { error } = await stripe.confirmPayment({
             elements,
             confirmParams: {
-                return_url: `${window.location.origin}/payment/success`,
+                return_url: `${window.location.origin}/payment/success?bootcampId=${bootcampId}`,
             },
         })
 

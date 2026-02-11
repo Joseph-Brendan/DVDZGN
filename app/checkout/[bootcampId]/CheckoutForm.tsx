@@ -99,7 +99,7 @@ export default function CheckoutForm({ bootcampId, title, priceNGN, priceUSD, ty
                         <div className="pt-2">
                             {stripePromise && clientSecret ? (
                                 <Elements options={options} stripe={stripePromise}>
-                                    <StripePaymentForm amount={priceUSD} />
+                                    <StripePaymentForm amount={priceUSD} bootcampId={bootcampId} />
                                 </Elements>
                             ) : !stripePromise ? (
                                 <div className="p-4 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
