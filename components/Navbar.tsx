@@ -4,7 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useSession, signOut } from "next-auth/react"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Trash2, Mail, User } from "lucide-react"
+import { Menu, X, Trash2, Mail, User, LogOut } from "lucide-react"
 import { useState } from "react"
 import {
     DropdownMenu,
@@ -104,6 +104,14 @@ export function Navbar() {
                                                 <Mail className="mr-2 h-4 w-4" />
                                                 <span>Contact Us</span>
                                             </a>
+                                        </DropdownMenuItem>
+                                        <DropdownMenuSeparator />
+                                        <DropdownMenuItem
+                                            className="cursor-pointer"
+                                            onSelect={() => signOut({ callbackUrl: "/" })}
+                                        >
+                                            <LogOut className="mr-2 h-4 w-4" />
+                                            <span>Sign Out</span>
                                         </DropdownMenuItem>
                                         <DropdownMenuSeparator />
                                         <DropdownMenuItem
