@@ -6,6 +6,7 @@ import { Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { toast } from "sonner"
 
 
 export default function ResetPasswordPage() {
@@ -17,13 +18,23 @@ export default function ResetPasswordPage() {
         e.preventDefault()
         setIsLoading(true)
 
-        // TODO: Implement actual API call
-        // For now, simulate a request
-        await new Promise(resolve => setTimeout(resolve, 1000))
+        try {
+            const res = await fetch("/api/auth/reset-password", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ email }),
+            })
 
-        console.log("Reset link sent to:", email)
-        setIsSubmitted(true)
-        setIsLoading(false)
+            if (!res.ok) {
+                toast.error("Something went wrong. Please try again.")
+            } else {
+                setIsSubmitted(true)
+            }
+        } catch {
+            toast.error("Something went wrong. Please try again.")
+        } finally {
+            setIsLoading(false)
+        }
     }
 
     return (
@@ -31,7 +42,9 @@ export default function ResetPasswordPage() {
             <div className="w-full max-w-[400px] space-y-6">
                 <div className="space-y-2 text-center">
                     <h1 className="text-2xl font-semibold tracking-tight">Reset Password</h1>
-                    Enter your email address and we&apos;ll send you a link to reset your password
+                    <p className="text-sm text-zinc-500">
+                        Enter your email address and we&apos;ll send you a link to reset your password
+                    </p>
                 </div>
 
                 {!isSubmitted ? (

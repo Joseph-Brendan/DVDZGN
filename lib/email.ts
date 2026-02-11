@@ -84,3 +84,38 @@ The Dev and Design Team
     return false
   }
 }
+
+export async function sendPasswordResetEmail(email: string, token: string) {
+  if (!transporter) {
+    console.warn("SMTP not configured. Skipping reset email to:", email)
+    return false
+  }
+
+  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
+  const resetLink = `${baseUrl}/auth/reset-password/confirm?token=${token}`
+
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
+      to: email,
+      subject: "Reset Your Password",
+      text: `
+You requested a password reset.
+
+Click the link below to set a new password. This link expires in 1 hour.
+
+${resetLink}
+
+If you didn't request this, you can safely ignore this email.
+
+- The Dev and Design Team
+`,
+    })
+
+    console.log("Reset email sent: %s", info.messageId)
+    return true
+  } catch (error) {
+    console.error("Error sending reset email:", error)
+    return false
+  }
+}
