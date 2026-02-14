@@ -77,12 +77,16 @@ export default async function CheckoutPage({ params }: { params: Promise<{ bootc
     const region = (country && country !== "NG") ? "INTL" : "NG"
 
     // Fetch full user details for payment providers
+    if (!userId) {
+        redirect(`/auth/login?callbackUrl=/checkout/${bootcampId}`)
+    }
+
+    // Fetch full user details for payment providers
     const user = await prisma.user.findUnique({
         where: { id: userId }
     })
 
     if (!user) {
-        // Should have been caught by auth check, but just in case
         redirect(`/auth/login?callbackUrl=/checkout/${bootcampId}`)
     }
 
