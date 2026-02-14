@@ -37,6 +37,9 @@ export default function FlutterwavePaymentButton({ amount, email, name, phone, b
             description: "Bootcamp Enrollment",
             logo: "",
         },
+        meta: {
+            bootcampId: bootcampId,
+        },
     }
 
     const handleFlutterwavePayment = useFlutterwave(config)

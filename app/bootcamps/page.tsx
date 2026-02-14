@@ -22,7 +22,7 @@ export default async function BootcampsPage() {
                     </p>
                 </div>
 
-                <div className="flex flex-col-reverse md:flex-row-reverse flex-wrap justify-center gap-8 items-center">
+                <div className="flex flex-col md:flex-row flex-wrap justify-center gap-8 items-center">
                     {bootcamps.map((bootcamp) => {
                         if (!bootcamp.isActive) {
                             return (
@@ -86,7 +86,7 @@ export default async function BootcampsPage() {
 
                                 <div className="flex items-center gap-2 text-sm text-zinc-500 mb-4">
                                     <Calendar className="h-4 w-4" />
-                                    <span>Starts 3rd of March 2026</span>
+                                    <span>Starts 30th of March 2026</span>
                                 </div>
 
                                 <p className="text-zinc-500 mb-6 line-clamp-3 text-sm flex-1">

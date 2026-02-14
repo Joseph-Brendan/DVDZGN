@@ -5,11 +5,12 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { BackButton } from "@/components/ui/back-button"
-import { Check, Users, Video, Calendar } from "lucide-react"
+import { Check, Users, Video, Calendar, Clock } from "lucide-react"
 
 interface Module {
     title: string
-    lessons: string[]
+    lessons?: string[]
+    description?: string
 }
 
 export const dynamic = "force-dynamic"
@@ -84,7 +85,11 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                     <div className="flex flex-wrap items-center gap-6 pt-4 text-sm text-zinc-500">
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
-                            <span>Starts 3rd of March 2026</span>
+                            <span>Starts 30th of March 2026</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <Clock className="h-4 w-4" />
+                            <span>Duration: 6 Weeks</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Video className="h-4 w-4" />
@@ -124,13 +129,20 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                                     <span className="text-primary/50 font-mono text-sm">0{idx + 1}</span>
                                     {module.title}
                                 </h3>
-                                <ul className="space-y-2 ml-8">
-                                    {module.lessons.map((lesson: string, i: number) => (
-                                        <li key={i} className="text-zinc-600 text-sm list-disc">
-                                            {lesson}
-                                        </li>
-                                    ))}
-                                </ul>
+                                {module.description && (
+                                    <p className="text-zinc-600 text-sm leading-relaxed mb-4 ml-8">
+                                        {module.description}
+                                    </p>
+                                )}
+                                {module.lessons && module.lessons.length > 0 && (
+                                    <ul className="space-y-2 ml-8">
+                                        {module.lessons.map((lesson: string, i: number) => (
+                                            <li key={i} className="text-zinc-600 text-sm list-disc">
+                                                {lesson}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                )}
                             </div>
                         ))}
                     </div>
