@@ -20,6 +20,7 @@ export default function SignupPage() {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [touchedPassword, setTouchedPassword] = useState(false)
+    const [showEmailHint, setShowEmailHint] = useState(false)
 
 
 
@@ -31,6 +32,15 @@ export default function SignupPage() {
         { id: 'number', text: '1 number', regex: /[0-9]/ },
         { id: 'special', text: '1 special character', regex: /[^A-Za-z0-9]/ },
     ]
+
+    useEffect(() => {
+        if (showEmailHint) {
+            const timer = setTimeout(() => {
+                setShowEmailHint(false)
+            }, 5000)
+            return () => clearTimeout(timer)
+        }
+    }, [showEmailHint])
 
     const unmetRequirements = requirements.filter(req => !req.regex.test(password))
     const isPasswordValid = unmetRequirements.length === 0
@@ -135,14 +145,17 @@ export default function SignupPage() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     onBlur={() => {
                                         if (email.length > 5 && email.includes('@')) {
-                                            toast.info("Please confirm your email is spelt correctly", {
-                                                duration: 5000,
-                                            })
+                                            setShowEmailHint(true)
                                         }
                                     }}
                                     className="bg-white"
                                     required
                                 />
+                                {showEmailHint && (
+                                    <p className="text-xs text-primary font-medium animate-in fade-in slide-in-from-top-1">
+                                        We hope you spelt your email correctly
+                                    </p>
+                                )}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>

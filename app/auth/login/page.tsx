@@ -19,8 +19,18 @@ function LoginForm() {
     const [isLoading, setIsLoading] = useState(false)
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [showEmailHint, setShowEmailHint] = useState(false)
 
     // Google provider check removed
+
+    useEffect(() => {
+        if (showEmailHint) {
+            const timer = setTimeout(() => {
+                setShowEmailHint(false)
+            }, 5000)
+            return () => clearTimeout(timer)
+        }
+    }, [showEmailHint])
 
     useEffect(() => {
         const msg = searchParams.get("msg")
@@ -88,13 +98,16 @@ function LoginForm() {
                                     onChange={(e) => setEmail(e.target.value)}
                                     onBlur={() => {
                                         if (email.length > 5 && email.includes('@')) {
-                                            toast.info("Please confirm your email is spelt correctly", {
-                                                duration: 5000,
-                                            })
+                                            setShowEmailHint(true)
                                         }
                                     }}
                                     className="bg-white"
                                 />
+                                {showEmailHint && (
+                                    <p className="text-xs text-primary font-medium animate-in fade-in slide-in-from-top-1">
+                                        We hope you spelt your email correctly
+                                    </p>
+                                )}
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="password">Password</Label>
