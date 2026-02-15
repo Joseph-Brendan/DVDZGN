@@ -31,14 +31,16 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
     // Hardcoded details for now as per request
-    const classTime = "7:00 PM - 9:00 PM WAT"
-
-    const duration = "8 Weeks"
+    const classTime = "2:00 PM - 4:00 PM WAT"
+    const duration = "6 Weeks"
     const platform = "Google Meet"
-    const discordLink = "https://discord.gg/your-invite-link" // Replace with actual link
-    const contactEmail = "learn@devdesignhq.com" // Replace with actual email
+    const discordLink = "https://discord.gg/ycQ2syKc7Y"
+    const contactEmail = "learn@devdesignhq.com"
 
-    const startDate = bootcamp.startDate ? new Date(bootcamp.startDate) : new Date()
+    // Override start date for display purposes if needed, or use bootcamp data
+    // For this specific request, we want to ensure it shows 30th March 2026
+    const displayStartDate = "30th March 2026"
+    const startDate = bootcamp.startDate ? new Date(bootcamp.startDate) : new Date('2026-03-30')
     const isStarted = new Date() >= startDate
 
     const handleJoinClass = () => {
@@ -112,6 +114,16 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
                     <div className="space-y-4">
                         <div className="flex items-start gap-3">
                             <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
+                                <Calendar className="w-5 h-5" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-medium text-zinc-900">Start Date</p>
+                                <p className="text-sm text-zinc-500">{displayStartDate}</p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-start gap-3">
+                            <div className="p-2 rounded-lg bg-blue-50 text-blue-600">
                                 <Clock className="w-5 h-5" />
                             </div>
                             <div>
@@ -120,8 +132,6 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
                                 <p className="text-xs text-zinc-400 mt-0.5">{duration}</p>
                             </div>
                         </div>
-
-
 
                         <div className="flex items-start gap-3">
                             <div className="p-2 rounded-lg bg-indigo-50 text-indigo-600">
