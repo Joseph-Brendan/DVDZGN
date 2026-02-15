@@ -1,6 +1,7 @@
 import { headers } from "next/headers"
 import { NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
+import { sendEnrollmentEmail, sendAdminEnrollmentNotification } from "@/lib/email"
 import Stripe from "stripe"
 
 export const dynamic = "force-dynamic"
@@ -109,6 +110,11 @@ async function handlePaymentIntentSucceeded(paymentIntent: Stripe.PaymentIntent)
             enrolledAt: new Date()
         }
     })
+
+
+    // Send Emails
+    await sendEnrollmentEmail(email || user.email!, bootcamp.title)
+    await sendAdminEnrollmentNotification(email || user.email!, bootcamp.title)
 
     console.log(`Successfully enrolled user ${userId} in bootcamp ${bootcampId}`)
 }

@@ -28,25 +28,74 @@ export async function sendEnrollmentEmail(email: string, bootcampName: string) {
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
       to: email,
-      subject: "Congratulations!",
+      subject: "Enrollment Successful! 🚀",
       text: `
-Welcome to our ${bootcampName} Bootcamp
+Hello,
 
-Here are your next steps.
-- Join the discord server using this link: https://discord.gg/devdesignhq
-- Reach out to your programs manager here if you are unable to Join the discord server: https://wa.me/
+You have successfully enrolled in the ${bootcampName}!
 
-See You In Class
+Here are your next steps:
+- Join our Discord server here: https://discord.gg/ycQ2syKc7Y
+- If you are unable to join, please reach out to the Programs Manager at: vyche2010@gmail.com
+
+We are excited to have you on board!
+
+Best,
+The Dev and Design Team
 `,
+      html: `
+      <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+        <h2>Enrollment Successful! 🚀</h2>
+        <p>Hello,</p>
+        <p>You have successfully enrolled in the <strong>${bootcampName}</strong>!</p>
+        <p>Here are your next steps:</p>
+        <ul>
+            <li>Join our <strong>Discord server</strong> here: <a href="https://discord.gg/ycQ2syKc7Y">https://discord.gg/ycQ2syKc7Y</a></li>
+            <li>If you are unable to join, please reach out to the Programs Manager at: <a href="mailto:vyche2010@gmail.com">vyche2010@gmail.com</a></li>
+        </ul>
+        <p>We are excited to have you on board!</p>
+        <p>Best,<br>The Dev and Design Team</p>
+      </div>
+      `
     })
 
-    console.log("Message sent: %s", info.messageId)
+    console.log("Enrollment email sent: %s", info.messageId)
     return true
   } catch (error) {
     console.error("Error sending enrollment email:", error)
     return false
   }
 }
+
+export async function sendAdminEnrollmentNotification(studentEmail: string, bootcampName: string) {
+  if (!transporter) {
+    console.warn("SMTP not configured. Skipping admin notification.")
+    return false
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
+      to: "jbrendan86@gmail.com",
+      subject: "New Enrollment",
+      text: `
+New Enrollment Alert!
+
+Student Email: ${studentEmail}
+Bootcamp: ${bootcampName}
+
+Time: ${new Date().toLocaleString()}
+`,
+    })
+
+    console.log("Admin notification sent: %s", info.messageId)
+    return true
+  } catch (error) {
+    console.error("Error sending admin notification:", error)
+    return false
+  }
+}
+
 
 export async function sendWelcomeEmail(email: string, name: string) {
   console.log("Attempting to send welcome email to:", email)

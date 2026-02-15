@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { sendEnrollmentEmail } from "@/lib/email";
+import { sendEnrollmentEmail, sendAdminEnrollmentNotification } from "@/lib/email";
 
 export async function POST(req: Request) {
     try {
@@ -95,7 +95,9 @@ export async function POST(req: Request) {
         });
 
         // Send Email
+        // Send Email
         await sendEnrollmentEmail(user.email!, bootcamp.title);
+        await sendAdminEnrollmentNotification(user.email!, bootcamp.title);
 
         return NextResponse.json({ status: "success" });
 
