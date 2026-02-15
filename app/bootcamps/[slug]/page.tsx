@@ -48,14 +48,18 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
     }
 
     // Parse curriculum
-    let curriculum = []
+    let curriculum: Module[] = []
     try {
         curriculum = JSON.parse(bootcamp.curriculum)
     } catch (e) { console.error('Failed to parse curriculum', e) }
 
+    const prerequisite = curriculum.find((m: Module) => m.title.toLowerCase().includes('prerequisite'))
+    const weeks = curriculum.filter((m: Module) => !m.title.toLowerCase().includes('prerequisite'))
+
+
     return (
         <div className="min-h-screen bg-background pb-20">
-            {/* Hero */}
+            {/* ... Hero section unchanged ... */}
             <div className="bg-white border-b border-zinc-100 pt-20 pb-16 px-4">
                 <div className="max-w-4xl mx-auto space-y-6">
                     <div className="mb-6">
@@ -122,26 +126,43 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
             <div className="px-4 py-16">
                 <div className="max-w-4xl mx-auto space-y-8">
                     <h2 className="text-2xl font-semibold tracking-tight">Curriculum</h2>
-                    <div className="space-y-4">
-                        {curriculum.map((module: Module, idx: number) => (
-                            <div key={idx} className="border border-zinc-200 rounded-xl p-6 bg-white">
-                                <h3 className="font-semibold text-lg mb-3 flex items-center gap-2">
-                                    <span className="text-primary/50 font-mono text-sm">0{idx + 1}</span>
+
+                    {prerequisite && (
+                        <div className="bg-amber-50 border-l-4 border-amber-400 p-4 rounded-r-md">
+                            <h3 className="text-sm font-bold text-amber-800 uppercase tracking-wide mb-1">Prerequisite</h3>
+                            <p className="text-amber-700 text-sm">
+                                {prerequisite.description}
+                            </p>
+                        </div>
+                    )}
+
+                    <div className="space-y-6">
+                        {weeks.map((module: Module, idx: number) => (
+                            <div key={idx} className="group border border-zinc-200 rounded-2xl p-6 bg-white hover:border-zinc-300 transition-colors">
+                                <h3 className="font-bold text-lg mb-4 flex items-center gap-3">
+                                    <span className="flex items-center justify-center h-8 w-8 rounded-full bg-zinc-100 text-zinc-500 font-mono text-xs font-medium">
+                                        0{idx + 1}
+                                    </span>
                                     {module.title}
                                 </h3>
+
                                 {module.description && (
-                                    <p className="text-zinc-600 text-sm leading-relaxed mb-4 ml-8">
+                                    <div className="text-zinc-600 text-sm leading-relaxed mb-6 pl-11 whitespace-pre-line border-l-2 border-zinc-100 ml-4 py-1 opacity-90">
                                         {module.description}
-                                    </p>
+                                    </div>
                                 )}
+
                                 {module.lessons && module.lessons.length > 0 && (
-                                    <ul className="space-y-2 ml-8">
-                                        {module.lessons.map((lesson: string, i: number) => (
-                                            <li key={i} className="text-zinc-600 text-sm list-disc">
-                                                {lesson}
-                                            </li>
-                                        ))}
-                                    </ul>
+                                    <div className="pl-11">
+                                        <ul className="grid sm:grid-cols-2 gap-3">
+                                            {module.lessons.map((lesson: string, i: number) => (
+                                                <li key={i} className="text-zinc-600 text-sm flex items-start gap-2">
+                                                    <span className="h-1.5 w-1.5 rounded-full bg-zinc-300 mt-1.5 flex-shrink-0" />
+                                                    {lesson}
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
                                 )}
                             </div>
                         ))}
