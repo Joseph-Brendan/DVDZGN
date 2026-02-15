@@ -140,7 +140,12 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     return false
   }
 
-  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000"
+  // Robust base URL resolution for Vercel/Production
+  const baseUrl = process.env.NEXT_PUBLIC_APP_URL
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
+    || process.env.NEXTAUTH_URL
+    || "http://localhost:3000"
+
   const resetLink = `${baseUrl}/auth/reset-password/confirm?token=${token}`
 
   try {
