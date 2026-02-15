@@ -140,9 +140,8 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     return false
   }
 
-  // Robust base URL resolution for Vercel/Production
+  // Use explicit app URL, or fall back to production domain / localhost
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL
-    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null)
     || (process.env.NODE_ENV === "production" ? "https://www.devdesignhq.com" : "http://localhost:3000")
 
   const resetLink = `${baseUrl}/auth/reset-password/confirm?token=${token}`
@@ -152,17 +151,21 @@ export async function sendPasswordResetEmail(email: string, token: string) {
       from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
       to: email,
       subject: "Reset Your Password",
-      text: `
-You requested a password reset.
-
-Click the link below to set a new password. This link expires in 1 hour.
-
-${resetLink}
-
-If you didn't request this, you can safely ignore this email.
-
-- The Dev and Design Team
-`,
+      text: `You requested a password reset.\n\nClick the link below to set a new password. This link expires in 1 hour.\n\n${resetLink}\n\nIf you didn't request this, you can safely ignore this email.\n\n- The Dev and Design Team`,
+      html: `
+      <div style="font-family: sans-serif; line-height: 1.6; color: #333; max-width: 500px; margin: 0 auto;">
+        <h2>Reset Your Password</h2>
+        <p>You requested a password reset.</p>
+        <p>Click the button below to set a new password. This link expires in 1 hour.</p>
+        <p style="text-align: center; margin: 32px 0;">
+          <a href="${resetLink}" style="background-color: #000; color: #fff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: 600;">Reset Password</a>
+        </p>
+        <p style="font-size: 12px; color: #666;">If the button doesn't work, copy and paste this link into your browser:</p>
+        <p style="font-size: 12px; word-break: break-all; color: #666;">${resetLink}</p>
+        <p style="font-size: 12px; color: #999; margin-top: 24px;">If you didn't request this, you can safely ignore this email.</p>
+        <p>- The Dev and Design Team</p>
+      </div>
+      `
     })
 
     console.log("Reset email sent: %s", info.messageId)
