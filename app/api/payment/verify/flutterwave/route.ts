@@ -37,7 +37,11 @@ export async function POST(req: Request) {
         const { status, currency, amount, customer } = data.data
 
         // 2. Validate transaction details
-        // In a real app, verify amount corresponds to bootcamp price
+        // Bank transfers may still be "pending" — let the client know to poll again
+        if (status === "pending") {
+            return NextResponse.json({ success: false, pending: true, message: "Payment is still being processed" }, { status: 202 })
+        }
+
         if (status !== "successful" || currency !== "NGN") {
             return NextResponse.json({ error: "Invalid transaction status or currency" }, { status: 400 })
         }
