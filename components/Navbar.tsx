@@ -85,7 +85,7 @@ export function Navbar() {
                         ) : (
                             pathname !== "/auth/login" && (
                                 <Link href="/auth/login" className="text-sm font-medium text-zinc-500 hover:text-zinc-900 transition-colors">
-                                    Login
+                                    Sign In
                                 </Link>
                             )
                         )}
@@ -146,7 +146,7 @@ export function Navbar() {
                                     className="block px-3 py-2 rounded-md text-base font-medium text-zinc-700 hover:text-zinc-900 hover:bg-zinc-50"
                                     onClick={() => setIsMenuOpen(false)}
                                 >
-                                    Login
+                                    Sign In
                                 </Link>
                             )
                         )}
