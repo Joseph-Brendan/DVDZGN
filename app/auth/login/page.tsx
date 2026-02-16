@@ -156,7 +156,12 @@ function LoginForm() {
                 <p className="px-8 text-center text-sm text-zinc-500">
                     Don&apos;t have an account?{" "}
                     <Link
-                        href="/auth/signup"
+                        href={(() => {
+                            const callbackUrl = searchParams.get("callbackUrl")
+                            return callbackUrl
+                                ? `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}&bootcampId=pending`
+                                : "/auth/signup"
+                        })()}
                         className="underline underline-offset-4 hover:text-primary"
                     >
                         Create one

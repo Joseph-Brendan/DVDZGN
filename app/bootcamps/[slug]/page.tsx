@@ -111,7 +111,7 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                                 <Link
                                     href={session
                                         ? `/checkout/${bootcamp.id}`
-                                        : `/auth/login?callbackUrl=/checkout/${bootcamp.id}&msg=login_required_registry`
+                                        : `/auth/signup?callbackUrl=/checkout/${bootcamp.id}&bootcampId=${bootcamp.id}`
                                     }
                                 >
                                     Register Now

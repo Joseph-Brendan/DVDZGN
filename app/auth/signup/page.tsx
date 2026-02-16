@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, Suspense } from "react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { signIn } from "next-auth/react"
-import { Eye, EyeOff, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, Info } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
@@ -12,8 +12,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { cn } from "@/lib/utils"
 
-export default function SignupPage() {
+function SignupForm() {
     const router = useRouter()
+    const searchParams = useSearchParams()
+    const callbackUrl = searchParams.get("callbackUrl")
+    const bootcampId = searchParams.get("bootcampId")
+
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
     const [name, setName] = useState("")
@@ -21,8 +25,6 @@ export default function SignupPage() {
     const [password, setPassword] = useState("")
     const [touchedPassword, setTouchedPassword] = useState(false)
     const [showEmailHint, setShowEmailHint] = useState(false)
-
-
 
     // Password requirements
     const requirements = [
@@ -49,7 +51,6 @@ export default function SignupPage() {
         e.preventDefault()
 
         if (!name || !email || !password) {
-            // Should be caught by 'required' attribute, but as a fallback/double-check
             return
         }
 
@@ -80,7 +81,8 @@ export default function SignupPage() {
 
                 if (result?.ok) {
                     toast.success("Account created successfully!")
-                    router.push("/dashboard")
+                    // Redirect to callbackUrl (checkout) if coming from bootcamp, otherwise dashboard
+                    router.push(callbackUrl || "/dashboard")
                     router.refresh()
                 } else {
                     toast.error("Account created, but auto-login failed. Please log in manually.")
@@ -98,13 +100,23 @@ export default function SignupPage() {
         }
     }
 
-
-
+    // Build login link that preserves callbackUrl
+    const loginHref = callbackUrl
+        ? `/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`
+        : "/auth/login"
 
     return (
         <div className="min-h-screen flex items-start pt-20 md:items-center md:pt-0 justify-center bg-background px-4 relative">
 
             <div className="w-full max-w-[400px] space-y-6">
+                {/* Chip message for bootcamp registration */}
+                {bootcampId && (
+                    <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2.5 text-sm text-primary font-medium animate-in fade-in slide-in-from-top-2">
+                        <Info className="h-4 w-4 flex-shrink-0" />
+                        <span>Create an account to register for this course</span>
+                    </div>
+                )}
+
                 <div className="space-y-2 text-center">
                     <h1 className="text-2xl font-semibold tracking-tight">Create an account</h1>
                     <p className="text-sm text-zinc-500">
@@ -215,7 +227,7 @@ export default function SignupPage() {
                 <p className="px-8 text-center text-sm text-zinc-500">
                     Already have an account?{" "}
                     <Link
-                        href="/auth/login"
+                        href={loginHref}
                         className="underline underline-offset-4 hover:text-primary"
                     >
                         Login
@@ -225,3 +237,12 @@ export default function SignupPage() {
         </div>
     )
 }
+
+export default function SignupPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center"><Loader2 className="h-6 w-6 animate-spin" /></div>}>
+            <SignupForm />
+        </Suspense>
+    )
+}
+
