@@ -1,18 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
-import { useRouter } from "next/navigation"
 import { BackButton } from "@/components/ui/back-button"
 import { Lock } from "lucide-react"
-import { loadStripe } from "@stripe/stripe-js"
-import { Elements } from "@stripe/react-stripe-js"
-import StripePaymentForm from "@/components/payment/StripePaymentForm"
 import FlutterwavePaymentButton from "@/components/payment/FlutterwavePaymentButton"
-
-// Initialize Stripe outside to avoid recreating on every render
-// Safely handle missing key to prevent runtime crashes
-const stripeKey = process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-const stripePromise = stripeKey ? loadStripe(stripeKey) : null
 
 interface CheckoutFormProps {
     bootcampId: string
@@ -27,34 +17,11 @@ interface CheckoutFormProps {
 }
 
 export default function CheckoutForm({ bootcampId, title, priceNGN, priceUSD, type, initialRegion, userEmail, userName, userPhone }: CheckoutFormProps) {
-    const region = initialRegion
-    const [clientSecret, setClientSecret] = useState("")
-
-    const priceDisplay = region === "NG"
+    const currency = initialRegion === "NG" ? "NGN" : "USD"
+    const amount = initialRegion === "NG" ? priceNGN : priceUSD
+    const priceDisplay = initialRegion === "NG"
         ? `₦${priceNGN.toLocaleString()}`
         : `$${priceUSD}`
-
-    useEffect(() => {
-        if (region === "INTL") {
-            // Create PaymentIntent as soon as the page loads for Stripe
-            fetch("/api/payment/stripe", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ amount: priceUSD, bootcampId }),
-            })
-                .then((res) => res.json())
-                .then((data) => setClientSecret(data.clientSecret))
-                .catch((err) => console.error("Error creating PaymentIntent:", err))
-        }
-    }, [region, priceUSD, bootcampId])
-
-    const appearance = {
-        theme: 'stripe' as const,
-    };
-    const options = {
-        clientSecret,
-        appearance,
-    };
 
     return (
         <div className="h-screen bg-zinc-50 flex items-center justify-center p-4 relative">
@@ -84,34 +51,17 @@ export default function CheckoutForm({ bootcampId, title, priceNGN, priceUSD, ty
                         <span className="text-2xl font-bold tracking-tight text-zinc-900">{priceDisplay}</span>
                     </div>
 
-                    {region === "NG" ? (
-                        <div className="pt-2">
-                            <FlutterwavePaymentButton
-                                amount={priceNGN}
-                                email={userEmail}
-                                name={userName}
-                                phone={userPhone}
-                                bootcampId={bootcampId}
-                                title={title}
-                            />
-                        </div>
-                    ) : (
-                        <div className="pt-2">
-                            {stripePromise && clientSecret ? (
-                                <Elements options={options} stripe={stripePromise}>
-                                    <StripePaymentForm amount={priceUSD} bootcampId={bootcampId} />
-                                </Elements>
-                            ) : !stripePromise ? (
-                                <div className="p-4 bg-red-50 text-red-600 text-sm rounded-lg border border-red-100">
-                                    Stripe configuration is missing. Please add <code>NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY</code> to your environment variables.
-                                </div>
-                            ) : (
-                                <div className="flex justify-center p-8">
-                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-                                </div>
-                            )}
-                        </div>
-                    )}
+                    <div className="pt-2">
+                        <FlutterwavePaymentButton
+                            amount={amount}
+                            currency={currency}
+                            email={userEmail}
+                            name={userName}
+                            phone={userPhone}
+                            bootcampId={bootcampId}
+                            title={title}
+                        />
+                    </div>
 
                     <p className="text-xs text-center text-zinc-400">
                         By proceeding, you agree to our terms of service.

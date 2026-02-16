@@ -1,48 +1,24 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { CheckCircle2, ArrowRight, Loader2 } from "lucide-react"
 import Link from "next/link"
 
 export default function SuccessClient() {
     const searchParams = useSearchParams()
-    const router = useRouter()
     const bootcampId = searchParams.get("bootcampId")
     const [isLoading, setIsLoading] = useState(true)
 
-    const payment_intent = searchParams.get("payment_intent")
-    const redirect_status = searchParams.get("redirect_status")
-
     useEffect(() => {
-        const verifyStripePayment = async () => {
-            if (payment_intent && redirect_status === "succeeded" && bootcampId) {
-                try {
-                    const res = await fetch("/api/payment/verify/stripe", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ payment_intent, bootcampId })
-                    })
-                    const data = await res.json()
-                    if (data.success) {
-                        // Success, loading state will clear
-                    }
-                } catch (error) {
-                    console.error("Stripe verification error", error)
-                }
-            }
-        }
-
-        verifyStripePayment()
-
-        // Simulate a brief loading state for UX or verifying additional details if needed
+        // Brief loading state for UX
         const timer = setTimeout(() => {
             setIsLoading(false)
         }, 1500)
 
         return () => clearTimeout(timer)
-    }, [payment_intent, redirect_status, bootcampId])
+    }, [])
 
     return (
         <div className="min-h-screen bg-zinc-50 flex items-center justify-center p-4">

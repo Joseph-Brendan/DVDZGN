@@ -9,6 +9,7 @@ import { toast } from "sonner"
 
 interface FlutterwavePaymentProps {
     amount: number
+    currency: "NGN" | "USD"
     email: string
     name: string
     phone?: string
@@ -16,17 +17,22 @@ interface FlutterwavePaymentProps {
     title: string
 }
 
-export default function FlutterwavePaymentButton({ amount, email, name, phone, bootcampId, title }: FlutterwavePaymentProps) {
+export default function FlutterwavePaymentButton({ amount, currency, email, name, phone, bootcampId, title }: FlutterwavePaymentProps) {
     const router = useRouter()
     const [txRef] = useState(() => Date.now().toString())
     const [isProcessing, setIsProcessing] = useState(false)
+
+    // NGN: full local options | USD: card only (international)
+    const paymentOptions = currency === "NGN"
+        ? "card,banktransfer,ussd"
+        : "card"
 
     const config = {
         public_key: process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || "",
         tx_ref: txRef,
         amount: amount,
-        currency: "NGN",
-        payment_options: "card,mobilemoney,ussd,banktransfer",
+        currency: currency,
+        payment_options: paymentOptions,
         customer: {
             email: email,
             phone_number: phone || "",
@@ -72,6 +78,8 @@ export default function FlutterwavePaymentButton({ amount, email, name, phone, b
         }
     }
 
+    const currencySymbol = currency === "NGN" ? "₦" : "$"
+
     return (
         <Button
             className="w-full h-12 text-base"
@@ -85,14 +93,13 @@ export default function FlutterwavePaymentButton({ amount, email, name, phone, b
                             // Instant payment (card) — verify immediately
                             await verifyAndEnroll(response.transaction_id)
                         } else if (response.status === "pending") {
-                            // Bank transfer / delayed — redirect to pending page
+                            // Bank transfer / delayed — poll for confirmation
                             setIsProcessing(true)
                             toast.info("Payment is being processed. We'll verify it shortly...")
 
-                            // Poll verification a few times (bank transfers can clear quickly)
                             let verified = false
                             for (let attempt = 0; attempt < 5; attempt++) {
-                                await new Promise(r => setTimeout(r, 5000)) // wait 5 seconds
+                                await new Promise(r => setTimeout(r, 5000))
                                 try {
                                     const verifyRes = await fetch("/api/payment/verify/flutterwave", {
                                         method: "POST",
@@ -115,7 +122,6 @@ export default function FlutterwavePaymentButton({ amount, email, name, phone, b
                             }
 
                             if (!verified) {
-                                // If polling didn't confirm, redirect to dashboard with a message
                                 toast.info("Your payment is still being processed. You'll be enrolled once it's confirmed.")
                                 router.push("/dashboard")
                             }
@@ -138,9 +144,8 @@ export default function FlutterwavePaymentButton({ amount, email, name, phone, b
                     Verifying Payment...
                 </>
             ) : (
-                `Pay ₦${amount.toLocaleString()}`
+                `Pay ${currencySymbol}${amount.toLocaleString()}`
             )}
         </Button>
     )
 }
-

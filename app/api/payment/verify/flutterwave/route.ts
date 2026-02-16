@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { sendEnrollmentEmail, sendAdminEnrollmentNotification } from "@/lib/email"
 
+const VALID_CURRENCIES = ["NGN", "USD"]
+
 export async function POST(req: Request) {
     try {
         const { transaction_id, bootcampId } = await req.json()
@@ -42,7 +44,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: false, pending: true, message: "Payment is still being processed" }, { status: 202 })
         }
 
-        if (status !== "successful" || currency !== "NGN") {
+        if (status !== "successful" || !VALID_CURRENCIES.includes(currency)) {
             return NextResponse.json({ error: "Invalid transaction status or currency" }, { status: 400 })
         }
 
@@ -76,13 +78,15 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Bootcamp not found" }, { status: 404 })
         }
 
-        if (amount < bootcamp.priceNGN) {
-            console.error(`Amount mismatch: paid ${amount}, expected ${bootcamp.priceNGN}`)
+        // Compare against the correct price based on currency
+        const expectedPrice = currency === "NGN" ? bootcamp.priceNGN : bootcamp.priceUSD
+
+        if (amount < expectedPrice) {
+            console.error(`Amount mismatch: paid ${amount} ${currency}, expected ${expectedPrice} ${currency}`)
             return NextResponse.json({ error: "Payment amount does not match bootcamp price" }, { status: 400 })
         }
 
         // 5. Record Enrollment with transactionId
-        // Check if already enrolled OR if transactionId was already used
         const existingEnrollment = await prisma.enrollment.findFirst({
             where: {
                 OR: [
@@ -105,8 +109,7 @@ export async function POST(req: Request) {
             }
         })
 
-        // 5. Send Email
-        // 5. Send Email
+        // 6. Send Email
         await sendEnrollmentEmail(user.email!, bootcamp.title)
         await sendAdminEnrollmentNotification(user.email!, bootcamp.title)
 
