@@ -3,10 +3,11 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
-import { GraduationCap, Calendar, ArrowRight } from "lucide-react"
+import { GraduationCap, Calendar, ArrowRight, Sparkles } from "lucide-react"
 import { redirect } from "next/navigation"
 
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard"
+import { AvailableBootcampCard } from "@/components/dashboard/AvailableBootcampCard"
 
 export const dynamic = "force-dynamic"
 
@@ -73,31 +74,33 @@ export default async function DashboardPage() {
                             {availableBootcamps.map((bootcamp) => {
                                 if (!bootcamp.isActive) {
                                     return (
-                                        <div key={bootcamp.id} className="group rounded-xl border border-zinc-200 bg-white p-6 transition-all hover:border-zinc-300">
-                                            <div className="mb-4">
-                                                <span className="inline-block rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-500">
-                                                    Coming Soon
-                                                </span>
-                                            </div>
-                                            <h4 className="text-xl font-semibold mb-4 text-zinc-500">{bootcamp.title}</h4>
-                                            <Button variant="outline" className="w-full text-zinc-400 border-zinc-200 hover:bg-transparent hover:text-zinc-400 cursor-not-allowed" disabled>
-                                                Join Waitlist
-                                            </Button>
-                                        </div>
+                                        <AvailableBootcampCard key={bootcamp.id} bootcamp={bootcamp} />
                                     )
                                 }
 
                                 return (
-                                    <div key={bootcamp.id} className="group rounded-xl border border-zinc-200 bg-white p-6 transition-all hover:border-primary/50">
-                                        <div className="mb-4">
-                                            <span className="inline-block rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                                                Live Cohort
-                                            </span>
+                                    <div key={bootcamp.id} className="group relative rounded-2xl border border-zinc-200/70 bg-gradient-to-b from-white to-zinc-50/50 overflow-hidden transition-all duration-300 hover:border-primary/30">
+                                        {/* Gradient accent bar */}
+                                        <div className="h-1 w-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 transition-all duration-300 group-hover:h-1.5" />
+                                        <div className="p-6">
+                                            <div className="mb-5">
+                                                <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary tracking-wide uppercase">
+                                                    <span className="relative flex h-2 w-2">
+                                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary/60 opacity-75"></span>
+                                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                                    </span>
+                                                    Live Cohort
+                                                </span>
+                                            </div>
+                                            <h4 className="text-lg font-semibold text-zinc-900 mb-1 tracking-tight group-hover:text-primary transition-colors duration-300">{bootcamp.title}</h4>
+                                            <p className="text-sm text-zinc-500 mb-6">Enroll now and start learning</p>
+                                            <Button className="w-full rounded-lg gap-2 shadow-none transition-all duration-300" asChild>
+                                                <Link href={`/bootcamps/${bootcamp.slug}`}>
+                                                    View Details
+                                                    <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-0.5" />
+                                                </Link>
+                                            </Button>
                                         </div>
-                                        <h4 className="text-xl font-semibold mb-4">{bootcamp.title}</h4>
-                                        <Button variant="outline" className="w-full group-hover:border-primary group-hover:text-primary" asChild>
-                                            <Link href={`/bootcamps/${bootcamp.slug}`}>View Details</Link>
-                                        </Button>
                                     </div>
                                 )
                             })}

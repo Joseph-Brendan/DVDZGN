@@ -15,11 +15,12 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?
-  accounts      Account[]
-  sessions      Session[]
-  enrollments   Enrollment[]
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  accounts         Account[]
+  sessions         Session[]
+  enrollments      Enrollment[]
+  waitlistEntries  WaitlistEntry[]
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
 }
 
 model Bootcamp {
@@ -30,11 +31,12 @@ model Bootcamp {
   priceNGN    Int
   priceUSD    Int
   curriculum  String       // JSON string for simplicity in SQLite 
-  isActive    Boolean      @default(true)
-  startDate   DateTime     @default(now()) // Added for conditional join logic
-  enrollments Enrollment[]
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  isActive         Boolean          @default(true)
+  startDate        DateTime         @default(now()) // Added for conditional join logic
+  enrollments      Enrollment[]
+  waitlistEntries  WaitlistEntry[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
 }
 
 model Enrollment {
@@ -94,4 +96,15 @@ model PasswordResetToken {
   createdAt DateTime @default(now())
 
   @@unique([email, token])
+}
+
+model WaitlistEntry {
+  id         String   @id @default(cuid())
+  userId     String
+  bootcampId String
+  createdAt  DateTime @default(now())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bootcamp   Bootcamp @relation(fields: [bootcampId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bootcampId])
 }

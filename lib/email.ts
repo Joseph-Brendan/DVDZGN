@@ -175,3 +175,85 @@ export async function sendPasswordResetEmail(email: string, token: string) {
     return false
   }
 }
+
+export async function sendWaitlistConfirmationEmail(email: string, name: string, bootcampName: string) {
+  if (!transporter) {
+    console.warn("SMTP not configured. Skipping waitlist confirmation email to:", email)
+    return false
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
+      to: email,
+      subject: `You're on the Waitlist for ${bootcampName}! 🎉`,
+      text: `
+Hi ${name},
+
+You have been added to the waitlist for ${bootcampName}!
+
+We'll notify you as soon as enrollment opens. Stay tuned!
+
+Best,
+The Dev and Design Team
+`,
+      html: `
+      <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+        <h2>You're on the Waitlist! 🎉</h2>
+        <p>Hi ${name},</p>
+        <p>You have been added to the waitlist for <strong>${bootcampName}</strong>!</p>
+        <p>We'll notify you as soon as enrollment opens. Stay tuned!</p>
+        <p>Best,<br>The Dev and Design Team</p>
+      </div>
+      `
+    })
+
+    console.log("Waitlist confirmation email sent: %s", info.messageId)
+    return true
+  } catch (error) {
+    console.error("Error sending waitlist confirmation email:", error)
+    return false
+  }
+}
+
+export async function sendAdminWaitlistNotification(userName: string, userEmail: string, bootcampName: string) {
+  if (!transporter) {
+    console.warn("SMTP not configured. Skipping admin waitlist notification.")
+    return false
+  }
+
+  try {
+    const info = await transporter.sendMail({
+      from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
+      to: "jbrendan86@gmail.com",
+      subject: "Waitlist Joined",
+      text: `
+A user has joined the waitlist!
+
+Name: ${userName}
+Email: ${userEmail}
+Bootcamp: ${bootcampName}
+
+Time: ${new Date().toLocaleString()}
+`,
+      html: `
+      <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+        <h2>Waitlist Joined</h2>
+        <p>A user has joined the waitlist:</p>
+        <ul>
+          <li><strong>Name:</strong> ${userName}</li>
+          <li><strong>Email:</strong> ${userEmail}</li>
+          <li><strong>Bootcamp:</strong> ${bootcampName}</li>
+        </ul>
+        <p style="font-size: 12px; color: #666;">Time: ${new Date().toLocaleString()}</p>
+      </div>
+      `
+    })
+
+    console.log("Admin waitlist notification sent: %s", info.messageId)
+    return true
+  } catch (error) {
+    console.error("Error sending admin waitlist notification:", error)
+    return false
+  }
+}
