@@ -5,9 +5,11 @@ import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { GraduationCap, Calendar, ArrowRight, Sparkles } from "lucide-react"
 import { redirect } from "next/navigation"
+import { Suspense } from "react"
 
 import { EnrolledCourseCard } from "@/components/dashboard/EnrolledCourseCard"
 import { AvailableBootcampCard } from "@/components/dashboard/AvailableBootcampCard"
+import { WaitlistAutoJoin } from "@/components/dashboard/WaitlistAutoJoin"
 
 export const dynamic = "force-dynamic"
 
@@ -36,6 +38,9 @@ export default async function DashboardPage() {
 
     return (
         <div className="min-h-screen bg-background">
+            <Suspense fallback={null}>
+                <WaitlistAutoJoin />
+            </Suspense>
             <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
                 {/* My Bootcamps Section */}
                 <section>

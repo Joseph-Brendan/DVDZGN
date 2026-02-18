@@ -2,6 +2,7 @@ import Link from "next/link"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Calendar } from "lucide-react"
+import { WaitlistButton } from "@/components/bootcamps/WaitlistButton"
 
 export const dynamic = "force-dynamic"
 
@@ -57,9 +58,7 @@ export default async function BootcampsPage() {
                                                 or ${bootcamp.priceUSD}
                                             </span>
                                         </div>
-                                        <Button size="sm" className="rounded-full" disabled variant="outline">
-                                            Join Waitlist
-                                        </Button>
+                                        <WaitlistButton bootcampId={bootcamp.id} />
                                     </div>
                                 </div>
                             )

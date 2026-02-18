@@ -17,6 +17,7 @@ function SignupForm() {
     const searchParams = useSearchParams()
     const callbackUrl = searchParams.get("callbackUrl")
     const bootcampId = searchParams.get("bootcampId")
+    const msg = searchParams.get("msg")
 
     const [showPassword, setShowPassword] = useState(false)
     const [isLoading, setIsLoading] = useState(false)
@@ -114,6 +115,12 @@ function SignupForm() {
                     <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2.5 text-sm text-primary font-medium animate-in fade-in slide-in-from-top-2">
                         <Info className="h-4 w-4 flex-shrink-0" />
                         <span>Create an account to register for this course</span>
+                    </div>
+                )}
+                {msg === "login_required_waitlist" && !bootcampId && (
+                    <div className="flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2.5 text-sm text-primary font-medium animate-in fade-in slide-in-from-top-2">
+                        <Info className="h-4 w-4 flex-shrink-0" />
+                        <span>Create an account to join the waitlist</span>
                     </div>
                 )}
 

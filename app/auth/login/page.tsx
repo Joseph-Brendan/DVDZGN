@@ -35,9 +35,14 @@ function LoginForm() {
     useEffect(() => {
         const msg = searchParams.get("msg")
         if (msg === "login_required_registry") {
-            // Small timeout to ensure toaster is ready
             setTimeout(() => {
                 toast.error("You have to be signed in to register")
+            }, 0)
+        } else if (msg === "login_required_waitlist") {
+            setTimeout(() => {
+                toast("Sign in to join the waitlist", {
+                    duration: 7000,
+                })
             }, 0)
         }
     }, [searchParams])
@@ -158,9 +163,14 @@ function LoginForm() {
                     <Link
                         href={(() => {
                             const callbackUrl = searchParams.get("callbackUrl")
-                            return callbackUrl
-                                ? `/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}&bootcampId=pending`
-                                : "/auth/signup"
+                            const msg = searchParams.get("msg")
+                            if (callbackUrl) {
+                                const params = new URLSearchParams()
+                                params.set("callbackUrl", callbackUrl)
+                                if (msg === "login_required_waitlist") params.set("msg", msg)
+                                return `/auth/signup?${params.toString()}`
+                            }
+                            return "/auth/signup"
                         })()}
                         className="underline underline-offset-4 hover:text-primary"
                     >
