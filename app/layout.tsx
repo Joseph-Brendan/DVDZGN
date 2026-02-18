@@ -14,6 +14,7 @@ import { Providers } from "@/components/Providers";
 import { Toaster } from "@/components/ui/sonner";
 
 import { Navbar } from "@/components/Navbar";
+import { Analytics } from "@vercel/analytics/next";
 
 export default function RootLayout({
   children,
@@ -28,6 +29,7 @@ export default function RootLayout({
           {children}
           <Toaster richColors position="top-center" />
         </Providers>
+        <Analytics />
       </body>
     </html>
   );
