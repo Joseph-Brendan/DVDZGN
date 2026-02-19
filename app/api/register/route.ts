@@ -41,7 +41,7 @@ export async function POST(req: Request) {
             )
         }
 
-        const hashedPassword = await hash(password, 8)
+        const hashedPassword = await hash(password, 10)
 
         const user = await prisma.user.create({
             data: {
@@ -56,7 +56,11 @@ export async function POST(req: Request) {
             console.error("Failed to send welcome email:", err)
         )
 
-        return NextResponse.json(user)
+        return NextResponse.json({
+            id: user.id,
+            email: user.email,
+            name: user.name,
+        })
     } catch (error) {
         console.error("Registration error:", error)
         return NextResponse.json(
