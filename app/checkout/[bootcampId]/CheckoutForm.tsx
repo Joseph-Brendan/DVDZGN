@@ -108,7 +108,7 @@ export default function CheckoutForm({ bootcampId, title, priceNGN, priceUSD, ty
                     <div className="space-y-2">
                         <label className="text-sm font-medium text-zinc-700 flex items-center gap-1.5">
                             <Tag className="h-3.5 w-3.5" />
-                            Discount Code
+                            Discount Code <span style={{ color: "#000" }}>(It&apos;s optional)</span>
                         </label>
                         {appliedCode ? (
                             <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-lg px-4 py-3">
