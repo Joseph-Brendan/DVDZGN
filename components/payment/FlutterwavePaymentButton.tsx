@@ -15,9 +15,10 @@ interface FlutterwavePaymentProps {
     phone?: string
     bootcampId: string
     title: string
+    discountCode?: string
 }
 
-export default function FlutterwavePaymentButton({ amount, currency, email, name, phone, bootcampId, title }: FlutterwavePaymentProps) {
+export default function FlutterwavePaymentButton({ amount, currency, email, name, phone, bootcampId, title, discountCode }: FlutterwavePaymentProps) {
     const router = useRouter()
     const [txRef] = useState(() => Date.now().toString())
     const [isProcessing, setIsProcessing] = useState(false)
@@ -45,6 +46,7 @@ export default function FlutterwavePaymentButton({ amount, currency, email, name
         },
         meta: {
             bootcampId: bootcampId,
+            ...(discountCode ? { discountCode } : {}),
         },
     }
 
@@ -58,7 +60,8 @@ export default function FlutterwavePaymentButton({ amount, currency, email, name
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     transaction_id: transactionId,
-                    bootcampId: bootcampId
+                    bootcampId: bootcampId,
+                    ...(discountCode ? { discountCode } : {})
                 })
             })
 
@@ -106,7 +109,8 @@ export default function FlutterwavePaymentButton({ amount, currency, email, name
                                         headers: { "Content-Type": "application/json" },
                                         body: JSON.stringify({
                                             transaction_id: response.transaction_id,
-                                            bootcampId: bootcampId
+                                            bootcampId: bootcampId,
+                                            ...(discountCode ? { discountCode } : {})
                                         })
                                     })
                                     const verifyData = await verifyRes.json()

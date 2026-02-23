@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { randomBytes } from "crypto"
 import { prisma } from "@/lib/prisma"
 import { sendPasswordResetEmail } from "@/lib/email"
+import { isRateLimited, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
@@ -9,6 +10,14 @@ export async function POST(req: Request) {
 
         if (!email) {
             return NextResponse.json({ error: "Email is required" }, { status: 400 })
+        }
+
+        // FIX #8: Rate limit — 3 resets per email per hour, 10 per IP per hour
+        const ip = getClientIp(req)
+        if (isRateLimited(`reset:${ip}`, 10, 3_600_000) ||
+            isRateLimited(`reset:${email}`, 3, 3_600_000)) {
+            // Still return success to not leak info
+            return NextResponse.json({ success: true })
         }
 
         // Always return success to prevent email enumeration

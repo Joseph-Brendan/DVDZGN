@@ -40,14 +40,16 @@ model Bootcamp {
 }
 
 model Enrollment {
-  id            String   @id @default(cuid())
-  userId        String
-  bootcampId    String
-  transactionId String?  @unique // Stripe payment_intent or Flutterwave transaction_id
-  status        String   @default("enrolled") // enrolled, completed, dropped
-  enrolledAt    DateTime @default(now())
-  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  bootcamp      Bootcamp @relation(fields: [bootcampId], references: [id], onDelete: Cascade)
+  id             String        @id @default(cuid())
+  userId         String
+  bootcampId     String
+  transactionId  String?       @unique // Stripe payment_intent or Flutterwave transaction_id
+  discountCodeId String?       // Track which discount code was used
+  status         String        @default("enrolled") // enrolled, completed, dropped
+  enrolledAt     DateTime      @default(now())
+  user           User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  bootcamp       Bootcamp      @relation(fields: [bootcampId], references: [id], onDelete: Cascade)
+  discountCode   DiscountCode? @relation(fields: [discountCodeId], references: [id])
 
   @@unique([userId, bootcampId])
 }
@@ -107,4 +109,19 @@ model WaitlistEntry {
   bootcamp   Bootcamp @relation(fields: [bootcampId], references: [id], onDelete: Cascade)
 
   @@unique([userId, bootcampId])
+}
+
+model DiscountCode {
+  id              String       @id @default(cuid())
+  code            String       @unique
+  discountPercent Int          // e.g. 20 for 20%
+  description     String?      // e.g. "Alumni 20% discount"
+  isActive        Boolean      @default(true)
+  validFrom       DateTime     @default(now())
+  validUntil      DateTime?
+  maxUses         Int?         // null = unlimited
+  currentUses     Int          @default(0)
+  enrollments     Enrollment[]
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
 }

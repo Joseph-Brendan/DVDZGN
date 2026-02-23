@@ -2,6 +2,7 @@ import { NextResponse } from "next/server"
 import { hash } from "bcryptjs"
 import { prisma } from "@/lib/prisma"
 import { sendWelcomeEmail } from "@/lib/email"
+import { isRateLimited, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
@@ -11,6 +12,15 @@ export async function POST(req: Request) {
             return NextResponse.json(
                 { error: "Missing required fields" },
                 { status: 400 }
+            )
+        }
+
+        // FIX #7: Rate limit — 10 registrations per IP per 15 minutes
+        const ip = getClientIp(req)
+        if (isRateLimited(`register:${ip}`, 10, 900_000)) {
+            return NextResponse.json(
+                { error: "Too many registration attempts. Please try again later." },
+                { status: 429 }
             )
         }
 
@@ -35,8 +45,9 @@ export async function POST(req: Request) {
         })
 
         if (exists) {
+            // FIX #7: Generic message to prevent email enumeration
             return NextResponse.json(
-                { error: "User already exists" },
+                { error: "Unable to create account. Please try a different email or log in." },
                 { status: 400 }
             )
         }

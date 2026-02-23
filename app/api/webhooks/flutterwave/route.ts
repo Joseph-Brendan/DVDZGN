@@ -62,7 +62,31 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Bootcamp not found" }, { status: 404 });
         }
 
-        const expectedPrice = currency === "NGN" ? bootcamp.priceNGN : bootcamp.priceUSD;
+        let expectedPrice = currency === "NGN" ? bootcamp.priceNGN : bootcamp.priceUSD;
+
+        // Apply discount if a valid discount code was used (from meta)
+        // FIX #4: Webhook only validates + adjusts price — does NOT increment currentUses
+        // The verify API handles incrementing to prevent double-counting
+        const discountCode = meta?.discountCode;
+        let validatedDiscountCodeId: string | null = null;
+        if (discountCode) {
+            const discount = await prisma.discountCode.findUnique({
+                where: { code: String(discountCode).toUpperCase().trim() }
+            });
+
+            if (discount && discount.isActive) {
+                const now = new Date();
+                const isValidDate = (!discount.validFrom || now >= discount.validFrom) &&
+                    (!discount.validUntil || now <= discount.validUntil);
+                const isWithinUsageLimit = discount.maxUses === null || discount.currentUses < discount.maxUses;
+
+                if (isValidDate && isWithinUsageLimit) {
+                    expectedPrice = Math.round(expectedPrice * (1 - discount.discountPercent / 100));
+                    validatedDiscountCodeId = discount.id;
+                    // NOTE: No currentUses increment here — verify API handles it
+                }
+            }
+        }
 
         if (amount < expectedPrice) {
             console.error(`Webhook: Amount mismatch. Paid ${amount} ${currency}, Expected ${expectedPrice} ${currency}`);
@@ -75,7 +99,6 @@ export async function POST(req: Request) {
         });
 
         if (checkEnrollment) {
-            console.log("Webhook: User already enrolled");
             return NextResponse.json({ status: "already_enrolled" });
         }
 
@@ -84,7 +107,8 @@ export async function POST(req: Request) {
                 userId: user.id,
                 bootcampId: bootcampId,
                 transactionId: String(transactionId),
-                status: "enrolled"
+                status: "enrolled",
+                ...(validatedDiscountCodeId ? { discountCodeId: validatedDiscountCodeId } : {})
             }
         });
 

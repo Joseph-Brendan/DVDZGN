@@ -101,9 +101,6 @@ export async function sendWelcomeEmail(email: string, name: string) {
   console.log("Attempting to send welcome email to:", email)
   if (!transporter) {
     console.warn("SMTP not configured. Skipping welcome email to:", email)
-    console.log("ENV CHECK - SMTP_HOST:", !!process.env.SMTP_HOST)
-    console.log("ENV CHECK - SMTP_USER:", !!process.env.SMTP_USER)
-    console.log("ENV CHECK - SMTP_PASS:", !!process.env.SMTP_PASS)
     return false
   }
 

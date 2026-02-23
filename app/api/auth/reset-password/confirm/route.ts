@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server"
 import { hash } from "bcryptjs"
 import { prisma } from "@/lib/prisma"
+import { isRateLimited, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
+        // FIX #5: Invalidate all existing sessions after password reset
         const { token, password } = await req.json()
 
         if (!token || !password) {
@@ -12,6 +14,12 @@ export async function POST(req: Request) {
 
         if (password.length < 8) {
             return NextResponse.json({ error: "Password must be at least 8 characters" }, { status: 400 })
+        }
+
+        // Rate limit by IP
+        const ip = getClientIp(req)
+        if (isRateLimited(`reset-confirm:${ip}`, 5, 60_000)) {
+            return NextResponse.json({ error: "Too many attempts. Please wait a moment." }, { status: 429 })
         }
 
         // Find the token
@@ -42,15 +50,21 @@ export async function POST(req: Request) {
         // Hash new password and update user
         const hashedPassword = await hash(password, 10)
 
-        await prisma.user.update({
-            where: { id: user.id },
-            data: { password: hashedPassword }
-        })
-
-        // Delete the used token (and any other tokens for this email)
-        await prisma.passwordResetToken.deleteMany({
-            where: { email: resetToken.email }
-        })
+        // FIX #5: Use transaction to update password, delete tokens, AND invalidate all sessions
+        await prisma.$transaction([
+            prisma.user.update({
+                where: { id: user.id },
+                data: { password: hashedPassword }
+            }),
+            // Delete the used token (and any other tokens for this email)
+            prisma.passwordResetToken.deleteMany({
+                where: { email: resetToken.email }
+            }),
+            // Invalidate all existing sessions for this user
+            prisma.session.deleteMany({
+                where: { userId: user.id }
+            })
+        ])
 
         return NextResponse.json({ success: true })
 
