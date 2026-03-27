@@ -43,10 +43,16 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
     const startDate = bootcamp.startDate ? new Date(bootcamp.startDate) : new Date('2026-03-30')
     const isStarted = new Date() >= startDate
 
+    const isDesignToMvp = bootcamp.title.toLowerCase().includes("design to mvp")
+
     const handleJoinClass = () => {
         if (isStarted) {
-            // In a real app, this would redirect to the actual Google Meet URL
-            window.open("https://meet.google.com/xyz-abc-def", "_blank")
+            if (isDesignToMvp) {
+                window.open("https://meet.google.com/guu-swnd-vcb", "_blank")
+            } else {
+                // In a real app, this would redirect to the actual Google Meet URL
+                window.open("https://meet.google.com/xyz-abc-def", "_blank")
+            }
         } else {
             setIsDialogOpen(true)
         }
@@ -164,14 +170,31 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
                         </div>
 
                         <div className="pt-2 space-y-3">
-                            <Button
-                                className="w-full gap-2 shadow-none"
-                                onClick={handleJoinClass}
-                                variant={isStarted ? "default" : "secondary"}
-                            >
-                                Join Live Class
-                                {isStarted && <ArrowRight className="w-4 h-4" />}
-                            </Button>
+                            {isDesignToMvp && isStarted ? (
+                                <Button
+                                    className="w-full gap-2 shadow-none relative overflow-hidden group border border-primary/20"
+                                    onClick={handleJoinClass}
+                                    variant="default"
+                                >
+                                    <span className="absolute left-4 flex h-2.5 w-2.5 items-center justify-center">
+                                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+                                        <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
+                                    </span>
+                                    <span className="ml-4 font-semibold uppercase tracking-wider text-xs flex items-center gap-2">
+                                        Join Live
+                                        <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                                    </span>
+                                </Button>
+                            ) : (
+                                <Button
+                                    className="w-full gap-2 shadow-none"
+                                    onClick={handleJoinClass}
+                                    variant={isStarted ? "default" : "secondary"}
+                                >
+                                    Join Live Class
+                                    {isStarted && <ArrowRight className="w-4 h-4" />}
+                                </Button>
+                            )}
 
                             <div className="text-left">
                                 {!isContactRevealed ? (
