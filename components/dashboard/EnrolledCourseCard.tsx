@@ -46,13 +46,11 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
     const isDesignToMvp = bootcamp.title.toLowerCase().includes("design to mvp")
 
     const handleJoinClass = () => {
-        if (isStarted) {
-            if (isDesignToMvp) {
-                window.open("https://meet.google.com/guu-swnd-vcb", "_blank")
-            } else {
-                // In a real app, this would redirect to the actual Google Meet URL
-                window.open("https://meet.google.com/xyz-abc-def", "_blank")
-            }
+        if (isDesignToMvp) {
+            window.open("https://meet.google.com/guu-swnd-vcb", "_blank")
+        } else if (isStarted) {
+            // In a real app, this would redirect to the actual Google Meet URL
+            window.open("https://meet.google.com/xyz-abc-def", "_blank")
         } else {
             setIsDialogOpen(true)
         }
@@ -170,7 +168,7 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
                         </div>
 
                         <div className="pt-2 space-y-3">
-                            {isDesignToMvp && isStarted ? (
+                            {isDesignToMvp ? (
                                 <Button
                                     className="w-full gap-2 shadow-none relative overflow-hidden group border border-primary/20"
                                     onClick={handleJoinClass}
