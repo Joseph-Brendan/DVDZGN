@@ -64,8 +64,7 @@ export function AvailableBootcampCard({ bootcamp }: AvailableBootcampCardProps) 
 
     return (
         <div className="group relative rounded-2xl border border-zinc-100 bg-gradient-to-b from-zinc-50/80 to-white overflow-hidden transition-all duration-300 hover:border-zinc-200">
-            {/* Muted accent bar */}
-            <div className="h-1 w-full bg-gradient-to-r from-zinc-200 via-zinc-300 to-zinc-200" />
+            {/* Muted accent bar removed */}
             <div className="p-6">
                 <div className="mb-5">
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-600 tracking-wide uppercase">

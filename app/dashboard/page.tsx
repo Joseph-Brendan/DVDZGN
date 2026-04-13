@@ -85,8 +85,7 @@ export default async function DashboardPage() {
 
                                 return (
                                     <div key={bootcamp.id} className="group relative rounded-2xl border border-zinc-200/70 bg-gradient-to-b from-white to-zinc-50/50 overflow-hidden transition-all duration-300 hover:border-primary/30">
-                                        {/* Gradient accent bar */}
-                                        <div className="h-1 w-full bg-gradient-to-r from-violet-500 via-purple-500 to-fuchsia-500 transition-all duration-300 group-hover:h-1.5" />
+                                        {/* Gradient accent bar removed */}
                                         <div className="p-6">
                                             <div className="mb-5">
                                                 <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary tracking-wide uppercase">
