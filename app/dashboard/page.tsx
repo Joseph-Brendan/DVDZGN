@@ -30,7 +30,7 @@ export default async function DashboardPage() {
     })
 
     const allBootcamps = await prisma.bootcamp.findMany({
-        orderBy: { createdAt: "desc" }
+        orderBy: [{ isActive: "desc" }, { createdAt: "desc" }]
     })
 
     const enrolledBootcampIds = new Set(userEnrollments.map(e => e.bootcampId))

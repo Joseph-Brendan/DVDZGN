@@ -17,7 +17,7 @@ function formatStartDate(date: Date): string {
 
 export default async function BootcampsPage() {
     const bootcamps = await prisma.bootcamp.findMany({
-        orderBy: { createdAt: "desc" }
+        orderBy: [{ isActive: "desc" }, { createdAt: "desc" }]
     })
 
     return (
