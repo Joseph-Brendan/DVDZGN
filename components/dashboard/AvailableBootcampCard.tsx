@@ -68,13 +68,13 @@ export function AvailableBootcampCard({ bootcamp }: AvailableBootcampCardProps) 
             <div className="h-1 w-full bg-gradient-to-r from-zinc-200 via-zinc-300 to-zinc-200" />
             <div className="p-6">
                 <div className="mb-5">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-3 py-1.5 text-xs font-semibold text-zinc-400 tracking-wide uppercase">
+                    <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1.5 text-xs font-semibold text-amber-600 tracking-wide uppercase">
                         <Clock className="h-3 w-3" />
-                        Coming Soon
+                        Enrollment Closed
                     </span>
                 </div>
                 <h4 className="text-lg font-semibold text-zinc-400 mb-1 tracking-tight">{bootcamp.title}</h4>
-                <p className="text-sm text-zinc-300 mb-6">Details will be announced soon</p>
+                <p className="text-sm text-zinc-400 mb-6">New cohort coming soon</p>
 
                 {isChecking ? (
                     <Button variant="outline" className="w-full rounded-lg shadow-none border-zinc-200 bg-zinc-50" disabled>

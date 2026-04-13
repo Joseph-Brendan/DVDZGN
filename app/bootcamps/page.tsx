@@ -32,8 +32,8 @@ export default async function BootcampsPage() {
                                     className="group flex flex-col rounded-2xl border border-zinc-200 bg-white p-6 transition-all w-full max-w-[400px] opacity-75 grayscale-[0.5] hover:opacity-100 hover:grayscale-0 hover:border-zinc-300"
                                 >
                                     <div className="mb-4">
-                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-500">
-                                            Coming Soon
+                                        <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-medium text-amber-600">
+                                            Enrollment Closed
                                         </span>
                                     </div>
                                     <h3 className="text-xl font-semibold mb-2 text-zinc-500">
@@ -42,7 +42,7 @@ export default async function BootcampsPage() {
 
                                     <div className="flex items-center gap-2 text-sm text-zinc-400 mb-4">
                                         <Calendar className="h-4 w-4" />
-                                        <span>Dates to be announced</span>
+                                        <span>New cohort coming soon</span>
                                     </div>
 
                                     <p className="text-zinc-400 mb-6 line-clamp-3 text-sm flex-1">

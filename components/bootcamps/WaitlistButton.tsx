@@ -8,9 +8,10 @@ import { Loader2, Check } from "lucide-react"
 
 interface WaitlistButtonProps {
     bootcampId: string
+    size?: "sm" | "lg"
 }
 
-export function WaitlistButton({ bootcampId }: WaitlistButtonProps) {
+export function WaitlistButton({ bootcampId, size = "sm" }: WaitlistButtonProps) {
     const { data: session, status } = useSession()
     const router = useRouter()
     const [isOnWaitlist, setIsOnWaitlist] = useState(false)
@@ -71,8 +72,8 @@ export function WaitlistButton({ bootcampId }: WaitlistButtonProps) {
 
     if (isChecking) {
         return (
-            <Button size="sm" className="rounded-full" disabled variant="outline">
-                <Loader2 className="h-3 w-3 animate-spin mr-1" />
+            <Button size={size} className={size === "lg" ? "rounded-full px-8 text-base h-12" : "rounded-full"} disabled variant="outline">
+                <Loader2 className={size === "lg" ? "h-4 w-4 animate-spin mr-2" : "h-3 w-3 animate-spin mr-1"} />
                 Loading...
             </Button>
         )
@@ -80,8 +81,8 @@ export function WaitlistButton({ bootcampId }: WaitlistButtonProps) {
 
     if (isOnWaitlist) {
         return (
-            <Button size="sm" className="rounded-full border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-600 cursor-default shadow-none" disabled variant="outline">
-                <Check className="h-3 w-3 mr-1" />
+            <Button size={size} className={`${size === "lg" ? "rounded-full px-8 text-base h-12" : "rounded-full"} border-emerald-200 bg-emerald-50 text-emerald-600 hover:bg-emerald-50 hover:text-emerald-600 cursor-default shadow-none`} disabled variant="outline">
+                <Check className={size === "lg" ? "h-4 w-4 mr-2" : "h-3 w-3 mr-1"} />
                 Waitlist Joined
             </Button>
         )
@@ -89,15 +90,15 @@ export function WaitlistButton({ bootcampId }: WaitlistButtonProps) {
 
     return (
         <Button
-            size="sm"
-            className="rounded-full shadow-none"
+            size={size}
+            className={size === "lg" ? "rounded-full px-8 text-base h-12 shadow-none" : "rounded-full shadow-none"}
             variant="outline"
             onClick={handleClick}
             disabled={isLoading}
         >
             {isLoading ? (
                 <>
-                    <Loader2 className="h-3 w-3 animate-spin mr-1" />
+                    <Loader2 className={size === "lg" ? "h-4 w-4 animate-spin mr-2" : "h-3 w-3 animate-spin mr-1"} />
                     Joining...
                 </>
             ) : (

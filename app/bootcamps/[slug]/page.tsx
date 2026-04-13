@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { Button } from "@/components/ui/button"
 import { BackButton } from "@/components/ui/back-button"
+import { WaitlistButton } from "@/components/bootcamps/WaitlistButton"
 import { Check, Users, Video, Calendar, Clock } from "lucide-react"
 
 interface Module {
@@ -66,13 +67,19 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                         <BackButton label="Back to Bootcamps" />
                     </div>
                     <div className="flex items-center gap-2 mb-4">
-                        <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-                            <span className="relative flex h-2 w-2">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                        {bootcamp.isActive ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
+                                <span className="relative flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                                </span>
+                                Live Cohort
                             </span>
-                            Live Cohort
-                        </span>
+                        ) : (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-medium text-amber-600">
+                                Enrollment Closed
+                            </span>
+                        )}
                         {isEnrolled && (
                             <span className="rounded-full bg-green-100 px-3 py-1 text-xs font-medium text-green-700 flex items-center gap-1">
                                 <Check className="h-3 w-3" /> Enrolled
@@ -89,7 +96,11 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                     <div className="flex flex-wrap items-center gap-6 pt-4 text-sm text-zinc-500">
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
-                            <span>Starts 30th of March 2026</span>
+                            {bootcamp.isActive ? (
+                                <span>Starts 30th of March 2026</span>
+                            ) : (
+                                <span>New cohort coming soon</span>
+                            )}
                         </div>
                         <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4" />
@@ -106,7 +117,7 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                             <Button size="lg" disabled className="bg-zinc-100 text-zinc-400 hover:bg-zinc-100 w-full sm:w-auto">
                                 You are registered
                             </Button>
-                        ) : (
+                        ) : bootcamp.isActive ? (
                             <Button size="lg" asChild className="rounded-full px-8 text-lg h-14 w-full sm:w-auto">
                                 <Link
                                     href={session
@@ -117,6 +128,15 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                                     Register Now
                                 </Link>
                             </Button>
+                        ) : (
+                            <div className="flex flex-col gap-3">
+                                <div className="rounded-xl bg-zinc-50 border border-zinc-200 px-6 py-4">
+                                    <p className="text-sm text-zinc-500">
+                                        Enrollment for this cohort is closed. Join the waitlist to be notified when the next cohort opens.
+                                    </p>
+                                </div>
+                                <WaitlistButton bootcampId={bootcamp.id} size="lg" />
+                            </div>
                         )}
                     </div>
                 </div>
