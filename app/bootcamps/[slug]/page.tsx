@@ -16,6 +16,15 @@ interface Module {
 
 export const dynamic = "force-dynamic"
 
+function formatStartDate(date: Date): string {
+    const d = new Date(date)
+    const day = d.getDate()
+    const month = d.toLocaleString('en-US', { month: 'long' })
+    const year = d.getFullYear()
+    const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
+    return `Starts ${day}${suffix} of ${month} ${year}`
+}
+
 export default async function BootcampDetailPage({ params }: { params: Promise<{ slug: string }> }) {
     const { slug } = await params
     const session = await getServerSession(authOptions)
@@ -97,14 +106,14 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                         <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4" />
                             {bootcamp.isActive ? (
-                                <span>Starts 30th of March 2026</span>
+                                <span>{formatStartDate(bootcamp.startDate)}</span>
                             ) : (
                                 <span>New cohort coming soon</span>
                             )}
                         </div>
                         <div className="flex items-center gap-2">
                             <Clock className="h-4 w-4" />
-                            <span>Duration: 6 Weeks</span>
+                            <span>Duration: {bootcamp.duration}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <Video className="h-4 w-4" />

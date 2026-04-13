@@ -6,6 +6,15 @@ import { WaitlistButton } from "@/components/bootcamps/WaitlistButton"
 
 export const dynamic = "force-dynamic"
 
+function formatStartDate(date: Date): string {
+    const d = new Date(date)
+    const day = d.getDate()
+    const month = d.toLocaleString('en-US', { month: 'long' })
+    const year = d.getFullYear()
+    const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
+    return `Starts ${day}${suffix} of ${month} ${year}`
+}
+
 export default async function BootcampsPage() {
     const bootcamps = await prisma.bootcamp.findMany({
         orderBy: { createdAt: "desc" }
@@ -85,7 +94,7 @@ export default async function BootcampsPage() {
 
                                 <div className="flex items-center gap-2 text-sm text-zinc-500 mb-4">
                                     <Calendar className="h-4 w-4" />
-                                    <span>Starts 30th of March 2026</span>
+                                    <span>{formatStartDate(bootcamp.startDate)}</span>
                                 </div>
 
                                 <p className="text-zinc-500 mb-6 line-clamp-3 text-sm flex-1">

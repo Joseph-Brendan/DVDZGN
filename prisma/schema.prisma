@@ -33,6 +33,7 @@ model Bootcamp {
   curriculum  String       // JSON string for simplicity in SQLite 
   isActive         Boolean          @default(true)
   startDate        DateTime         @default(now()) // Added for conditional join logic
+  duration         String           @default("6 Weeks")
   enrollments      Enrollment[]
   waitlistEntries  WaitlistEntry[]
   createdAt        DateTime         @default(now())
