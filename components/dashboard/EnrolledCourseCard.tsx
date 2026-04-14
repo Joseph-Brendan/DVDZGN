@@ -30,18 +30,27 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
     const [isContactRevealed, setIsContactRevealed] = useState(false)
     const [isDialogOpen, setIsDialogOpen] = useState(false)
 
-    // Hardcoded details for now as per request
+    // Dynamic details from bootcamp data
     const classTime = "2:00 PM - 4:00 PM WAT"
-    const duration = "6 Weeks"
+    const duration = bootcamp.duration || "6 Weeks"
     const platform = "Google Meet"
     const discordLink = "https://discord.gg/ycQ2syKc7Y"
     const contactEmail = "learn@devdesignhq.com"
 
-    // Override start date for display purposes if needed, or use bootcamp data
-    // For this specific request, we want to ensure it shows 30th March 2026
-    const displayStartDate = "30th March 2026"
-    const startDate = bootcamp.startDate ? new Date(bootcamp.startDate) : new Date('2026-03-30')
+    // Use dynamic start date from bootcamp
+    const startDate = bootcamp.startDate ? new Date(bootcamp.startDate) : new Date()
     const isStarted = new Date() >= startDate
+
+    // Format start date dynamically
+    const formatDate = (date: Date) => {
+        const d = new Date(date)
+        const day = d.getDate()
+        const month = d.toLocaleString('en-US', { month: 'long' })
+        const year = d.getFullYear()
+        const suffix = day === 1 || day === 21 || day === 31 ? 'st' : day === 2 || day === 22 ? 'nd' : day === 3 || day === 23 ? 'rd' : 'th'
+        return `${day}${suffix} ${month} ${year}`
+    }
+    const displayStartDate = formatDate(startDate)
 
     const isDesignToMvp = bootcamp.title.toLowerCase().includes("design to mvp")
 

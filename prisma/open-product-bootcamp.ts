@@ -7,7 +7,7 @@ async function main() {
         where: { slug: "product-engineering-bootcamp" },
         data: {
             title: "Product(UI/UX) Engineering Bootcamp",
-            description: "Learn how to Design and Build mobile and Web applications using AI. Master product thinking, UI/UX design, and full-stack development.",
+            description: "Learn how to Design and Build mobile & Web applications. Master product thinking, market intelligence, UI/UX design, and MVP development.",
             isActive: true,
             priceNGN: 50000,
             priceUSD: 50,

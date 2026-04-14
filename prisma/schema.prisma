@@ -126,3 +126,23 @@ model DiscountCode {
   createdAt       DateTime     @default(now())
   updatedAt       DateTime     @updatedAt
 }
+
+model PaymentLog {
+  id            String   @id @default(cuid())
+  transactionId String?
+  userId        String?
+  userEmail     String?
+  bootcampId    String?
+  source        String   // "verify" or "webhook"
+  status        String   // "success", "failed", "error"
+  errorMessage  String?
+  amount        Float?
+  currency      String?
+  rawResponse   String?  // JSON stringified response from Flutterwave
+  createdAt     DateTime @default(now())
+
+  @@index([transactionId])
+  @@index([userEmail])
+  @@index([createdAt])
+}
+

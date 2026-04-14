@@ -20,7 +20,12 @@ interface FlutterwavePaymentProps {
 
 export default function FlutterwavePaymentButton({ amount, currency, email, name, phone, bootcampId, title, discountCode }: FlutterwavePaymentProps) {
     const router = useRouter()
-    const [txRef] = useState(() => Date.now().toString())
+    // I6: Use crypto.randomUUID() for guaranteed unique tx_ref
+    const [txRef] = useState(() =>
+        typeof crypto !== "undefined" && crypto.randomUUID
+            ? crypto.randomUUID()
+            : `${Date.now()}-${Math.random().toString(36).slice(2)}`
+    )
     const [isProcessing, setIsProcessing] = useState(false)
 
     // NGN: full local options | USD: card only (international)
@@ -52,33 +57,67 @@ export default function FlutterwavePaymentButton({ amount, currency, email, name
 
     const handleFlutterwavePayment = useFlutterwave(config)
 
-    const verifyAndEnroll = async (transactionId: number) => {
+    // C2: Retry with exponential backoff
+    const verifyAndEnroll = async (transactionId: number, maxRetries = 3) => {
         setIsProcessing(true)
-        try {
-            const verifyRes = await fetch("/api/payment/verify/flutterwave", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                    transaction_id: transactionId,
-                    bootcampId: bootcampId,
-                    ...(discountCode ? { discountCode } : {})
+        let lastError = ""
+
+        for (let attempt = 0; attempt <= maxRetries; attempt++) {
+            try {
+                // Exponential backoff: 0ms, 2s, 4s, 8s
+                if (attempt > 0) {
+                    const delay = Math.pow(2, attempt) * 1000
+                    toast.info(`Retrying verification (attempt ${attempt + 1}/${maxRetries + 1})...`)
+                    await new Promise(r => setTimeout(r, delay))
+                }
+
+                const verifyRes = await fetch("/api/payment/verify/flutterwave", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        transaction_id: transactionId,
+                        bootcampId: bootcampId,
+                        ...(discountCode ? { discountCode } : {})
+                    })
                 })
-            })
 
-            const verifyData = await verifyRes.json()
+                const verifyData = await verifyRes.json()
 
-            if (verifyData.success) {
-                toast.success("Payment verified! Redirecting...")
-                router.push(`/payment/success?bootcampId=${bootcampId}`)
-            } else {
-                toast.error(verifyData.error || "Payment verification failed. Please contact support.")
+                if (verifyData.success) {
+                    toast.success("Payment verified! Redirecting...")
+                    router.push(`/payment/success?bootcampId=${bootcampId}`)
+                    return // Success — exit retry loop
+                }
+
+                if (verifyData.pending) {
+                    // Payment still processing — continue retrying
+                    lastError = "Payment is still being processed"
+                    continue
+                }
+
+                // Non-retryable error (amount mismatch, not found, etc.)
+                if (verifyRes.status === 400 || verifyRes.status === 404) {
+                    toast.error(verifyData.error || "Payment verification failed. Please contact support.")
+                    setIsProcessing(false)
+                    return
+                }
+
+                // Auth error — session may have expired, still retryable via webhook
+                lastError = verifyData.error || "Verification failed"
+
+            } catch (error) {
+                console.error(`Verification attempt ${attempt + 1} failed:`, error)
+                lastError = "Network error during verification"
             }
-        } catch (error) {
-            console.error("Verification error:", error)
-            toast.error("An error occurred verifying your payment. Please contact support.")
-        } finally {
-            setIsProcessing(false)
         }
+
+        // All retries exhausted — direct user to recovery
+        toast.error(
+            `Verification failed: ${lastError}. Your payment was received — visit your dashboard or contact support.`,
+            { duration: 10000 }
+        )
+        router.push(`/dashboard?recover_payment=true&transaction_id=${transactionId}&bootcampId=${bootcampId}`)
+        setIsProcessing(false)
     }
 
     const currencySymbol = currency === "NGN" ? "₦" : "$"
@@ -93,15 +132,15 @@ export default function FlutterwavePaymentButton({ amount, currency, email, name
                         closePaymentModal()
 
                         if (response.status === "successful" || response.status === "completed") {
-                            // Instant payment (card) — verify immediately
+                            // Instant payment (card) — verify with retries
                             await verifyAndEnroll(response.transaction_id)
                         } else if (response.status === "pending") {
-                            // Bank transfer / delayed — poll for confirmation
+                            // Bank transfer / delayed — poll for confirmation with retries
                             setIsProcessing(true)
                             toast.info("Payment is being processed. We'll verify it shortly...")
 
                             let verified = false
-                            for (let attempt = 0; attempt < 5; attempt++) {
+                            for (let attempt = 0; attempt < 6; attempt++) {
                                 await new Promise(r => setTimeout(r, 5000))
                                 try {
                                     const verifyRes = await fetch("/api/payment/verify/flutterwave", {
@@ -126,7 +165,7 @@ export default function FlutterwavePaymentButton({ amount, currency, email, name
                             }
 
                             if (!verified) {
-                                toast.info("Your payment is still being processed. You'll be enrolled once it's confirmed.")
+                                toast.info("Your payment is still being processed. You'll be enrolled once it's confirmed.", { duration: 8000 })
                                 router.push("/dashboard")
                             }
                             setIsProcessing(false)

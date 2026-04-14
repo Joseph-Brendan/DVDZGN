@@ -14,10 +14,26 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Missing required parameters" }, { status: 400 })
         }
 
-        // FIX #2: Require authentication — no fallback to Flutterwave customer email
+        // I5: Validate transaction_id is numeric to prevent path injection
+        if (isNaN(Number(transaction_id))) {
+            return NextResponse.json({ error: "Invalid transaction ID" }, { status: 400 })
+        }
+
+        // Require authentication
         const session = await getServerSession(authOptions)
 
         if (!session?.user?.email) {
+            // C6: Log failed attempt
+            await prisma.paymentLog.create({
+                data: {
+                    transactionId: String(transaction_id),
+                    bootcampId,
+                    source: "verify",
+                    status: "failed",
+                    errorMessage: "No authenticated session — session may have expired during payment",
+                }
+            }).catch(e => console.error("PaymentLog write failed:", e))
+
             return NextResponse.json({ error: "Authentication required. Please log in and try again." }, { status: 401 })
         }
 
@@ -26,6 +42,17 @@ export async function POST(req: Request) {
         })
 
         if (!user) {
+            await prisma.paymentLog.create({
+                data: {
+                    transactionId: String(transaction_id),
+                    userEmail: session.user.email,
+                    bootcampId,
+                    source: "verify",
+                    status: "failed",
+                    errorMessage: "User not found in database",
+                }
+            }).catch(e => console.error("PaymentLog write failed:", e))
+
             return NextResponse.json({ error: "User not found. Please log in and try again." }, { status: 401 })
         }
 
@@ -37,7 +64,7 @@ export async function POST(req: Request) {
         }
 
         // 1. Verify transaction with Flutterwave
-        const response = await fetch(`https://api.flutterwave.com/v3/transactions/${transaction_id}/verify`, {
+        const response = await fetch(`https://api.flutterwave.com/v3/transactions/${Number(transaction_id)}/verify`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -48,6 +75,19 @@ export async function POST(req: Request) {
         const data = await response.json()
 
         if (data.status !== "success") {
+            await prisma.paymentLog.create({
+                data: {
+                    transactionId: String(transaction_id),
+                    userId: user.id,
+                    userEmail: user.email,
+                    bootcampId,
+                    source: "verify",
+                    status: "failed",
+                    errorMessage: `Flutterwave verification failed: ${data.message || data.status}`,
+                    rawResponse: JSON.stringify(data).slice(0, 2000),
+                }
+            }).catch(e => console.error("PaymentLog write failed:", e))
+
             return NextResponse.json({ error: "Payment verification failed" }, { status: 400 })
         }
 
@@ -59,6 +99,20 @@ export async function POST(req: Request) {
         }
 
         if (status !== "successful" || !VALID_CURRENCIES.includes(currency)) {
+            await prisma.paymentLog.create({
+                data: {
+                    transactionId: String(transaction_id),
+                    userId: user.id,
+                    userEmail: user.email,
+                    bootcampId,
+                    source: "verify",
+                    status: "failed",
+                    errorMessage: `Invalid status (${status}) or currency (${currency})`,
+                    amount,
+                    currency,
+                }
+            }).catch(e => console.error("PaymentLog write failed:", e))
+
             return NextResponse.json({ error: "Invalid transaction status or currency" }, { status: 400 })
         }
 
@@ -95,6 +149,20 @@ export async function POST(req: Request) {
 
         if (amount < expectedPrice) {
             console.error(`Amount mismatch: paid ${amount} ${currency}, expected ${expectedPrice} ${currency}`)
+            await prisma.paymentLog.create({
+                data: {
+                    transactionId: String(transaction_id),
+                    userId: user.id,
+                    userEmail: user.email,
+                    bootcampId,
+                    source: "verify",
+                    status: "failed",
+                    errorMessage: `Amount mismatch: paid ${amount} ${currency}, expected ${expectedPrice} ${currency}`,
+                    amount,
+                    currency,
+                }
+            }).catch(e => console.error("PaymentLog write failed:", e))
+
             return NextResponse.json({ error: "Payment amount does not match bootcamp price" }, { status: 400 })
         }
 
@@ -112,9 +180,7 @@ export async function POST(req: Request) {
             return NextResponse.json({ success: true, message: "Already enrolled or transaction already used" })
         }
 
-        // FIX #1 & #4: Create enrollment AND increment discount usage in a single transaction
-        // This ensures atomicity — if enrollment fails, discount usage isn't wasted
-        // Only the verify API increments usage (not the webhook), preventing double-increment
+        // Create enrollment AND increment discount usage in a single transaction
         await prisma.$transaction(async (tx) => {
             await tx.enrollment.create({
                 data: {
@@ -134,9 +200,27 @@ export async function POST(req: Request) {
             }
         })
 
-        // 6. Send Email
-        await sendEnrollmentEmail(user.email!, bootcamp.title)
-        await sendAdminEnrollmentNotification(user.email!, bootcamp.title)
+        // C6: Log successful enrollment
+        await prisma.paymentLog.create({
+            data: {
+                transactionId: String(transaction_id),
+                userId: user.id,
+                userEmail: user.email,
+                bootcampId,
+                source: "verify",
+                status: "success",
+                amount,
+                currency,
+            }
+        }).catch(e => console.error("PaymentLog write failed:", e))
+
+        // C1: Send emails fire-and-forget (don't block the response)
+        sendEnrollmentEmail(user.email!, bootcamp.title).catch((err) =>
+            console.error("Failed to send enrollment email:", err)
+        )
+        sendAdminEnrollmentNotification(user.email!, bootcamp.title).catch((err) =>
+            console.error("Failed to send admin notification:", err)
+        )
 
         return NextResponse.json({ success: true })
 
