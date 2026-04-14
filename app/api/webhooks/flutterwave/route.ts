@@ -232,10 +232,10 @@ export async function POST(req: Request) {
         }).catch(e => console.error("PaymentLog write failed:", e));
 
         // C1: Send emails fire-and-forget
-        sendEnrollmentEmail(user.email!, bootcamp.title).catch((err) =>
+        sendEnrollmentEmail(user.email!, bootcamp.title, user.name || undefined).catch((err) =>
             console.error("Failed to send enrollment email:", err)
         );
-        sendAdminEnrollmentNotification(user.email!, bootcamp.title).catch((err) =>
+        sendAdminEnrollmentNotification(user.email!, bootcamp.title, user.name || undefined).catch((err) =>
             console.error("Failed to send admin notification:", err)
         );
 

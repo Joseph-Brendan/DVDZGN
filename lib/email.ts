@@ -18,42 +18,47 @@ const transporter = isSmtpConfigured
   })
   : null
 
-export async function sendEnrollmentEmail(email: string, bootcampName: string) {
+export async function sendEnrollmentEmail(email: string, bootcampName: string, studentName?: string) {
   if (!transporter) {
     console.warn("SMTP not configured. Skipping enrollment email to:", email)
     return false
   }
 
+  const greeting = studentName ? `Hi ${studentName},` : "Hello,"
+
   try {
     const info = await transporter.sendMail({
       from: process.env.SMTP_FROM || '"Dev and Design" <learn@devdesignhq.com>',
       to: email,
-      subject: "Enrollment Successful! 🚀",
+      subject: "Congratulations! 🎉",
       text: `
-Hello,
+${greeting}
 
-You have successfully enrolled in the ${bootcampName}!
+Congratulations! You have successfully enrolled in the ${bootcampName}.
+
+We are so glad to have you join us. This is the beginning of something exciting, and we cannot wait to see what you build.
 
 Here are your next steps:
-- Join our Discord server here: https://discord.gg/ycQ2syKc7Y
-- If you are unable to join, please reach out to the Programs Manager at: vyche2010@gmail.com
+- Join our Discord server here: https://discord.gg/Rhj2UA8n
+- If you have any questions or need help, reach out to Mrs Victoria, the Programs Manager, at: vyche2010@gmail.com
 
-We are excited to have you on board!
+See you in class!
 
 Best,
 The Dev and Design Team
 `,
       html: `
       <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
-        <h2>Enrollment Successful! 🚀</h2>
-        <p>Hello,</p>
-        <p>You have successfully enrolled in the <strong>${bootcampName}</strong>!</p>
+        <h2>Congratulations! 🎉</h2>
+        <p>${greeting}</p>
+        <p>You have successfully enrolled in the <strong>${bootcampName}</strong>.</p>
+        <p>We are so glad to have you join us. This is the beginning of something exciting, and we cannot wait to see what you build.</p>
         <p>Here are your next steps:</p>
         <ul>
-            <li>Join our <strong>Discord server</strong> here: <a href="https://discord.gg/ycQ2syKc7Y">https://discord.gg/ycQ2syKc7Y</a></li>
-            <li>If you are unable to join, please reach out to the Programs Manager at: <a href="mailto:vyche2010@gmail.com">vyche2010@gmail.com</a></li>
+            <li>Join our <strong>Discord server</strong> here: <a href="https://discord.gg/Rhj2UA8n">https://discord.gg/Rhj2UA8n</a></li>
+            <li>If you have any questions or need help, reach out to <strong>Mrs Victoria</strong>, the Programs Manager, at: <a href="mailto:vyche2010@gmail.com">vyche2010@gmail.com</a></li>
         </ul>
-        <p>We are excited to have you on board!</p>
+        <p>See you in class!</p>
         <p>Best,<br>The Dev and Design Team</p>
       </div>
       `
@@ -67,7 +72,7 @@ The Dev and Design Team
   }
 }
 
-export async function sendAdminEnrollmentNotification(studentEmail: string, bootcampName: string) {
+export async function sendAdminEnrollmentNotification(studentEmail: string, bootcampName: string, studentName?: string) {
   if (!transporter) {
     console.warn("SMTP not configured. Skipping admin notification.")
     return false
@@ -81,11 +86,24 @@ export async function sendAdminEnrollmentNotification(studentEmail: string, boot
       text: `
 New Enrollment Alert!
 
-Student Email: ${studentEmail}
+Name: ${studentName || "Not provided"}
+Email: ${studentEmail}
 Bootcamp: ${bootcampName}
 
 Time: ${new Date().toLocaleString()}
 `,
+      html: `
+      <div style="font-family: sans-serif; line-height: 1.6; color: #333;">
+        <h2>New Enrollment</h2>
+        <p>A new student has enrolled:</p>
+        <ul>
+          <li><strong>Name:</strong> ${studentName || "Not provided"}</li>
+          <li><strong>Email:</strong> ${studentEmail}</li>
+          <li><strong>Bootcamp:</strong> ${bootcampName}</li>
+        </ul>
+        <p style="font-size: 12px; color: #666;">Time: ${new Date().toLocaleString()}</p>
+      </div>
+      `
     })
 
     console.log("Admin notification sent: %s", info.messageId)
