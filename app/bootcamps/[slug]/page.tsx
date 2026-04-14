@@ -39,22 +39,18 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
 
     if (!bootcamp) notFound()
 
-    // Check enrollment if logged in (mocking user query for now as session.user.id stub logic in auth.ts is simple)
-    // In real implementation:
+    // Check enrollment if logged in
     let isEnrolled = false
-    if (session?.user?.email) {
-        const user = await prisma.user.findUnique({ where: { email: session.user.email } })
-        if (user) {
-            const enrollment = await prisma.enrollment.findUnique({
-                where: {
-                    userId_bootcampId: {
-                        userId: user.id,
-                        bootcampId: bootcamp.id
-                    }
+    if (session?.user?.id) {
+        const enrollment = await prisma.enrollment.findUnique({
+            where: {
+                userId_bootcampId: {
+                    userId: session.user.id,
+                    bootcampId: bootcamp.id
                 }
-            })
-            isEnrolled = !!enrollment
-        }
+            }
+        })
+        isEnrolled = !!enrollment
     }
 
     // Parse curriculum

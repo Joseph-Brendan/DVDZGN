@@ -26,24 +26,26 @@ export default async function CheckoutPage({ params }: { params: Promise<{ bootc
 
     if (!bootcamp) notFound()
 
-    // Check if user is already enrolled
-    // IMPORTANT: Make sure we have the user ID from the session first.
-    // Ideally session.user.id is available. If not, fetch user by email.
-    let userId = session.user.id
-    if (!userId && session.user.email) {
-        const user = await prisma.user.findUnique({ where: { email: session.user.email } })
-        if (user) userId = user.id
+    // Fetch user — single query using session.user.id (set by JWT callback) with email fallback
+    const user = await prisma.user.findUnique({
+        where: session.user.id
+            ? { id: session.user.id }
+            : { email: session.user.email! }
+    })
+
+    if (!user) {
+        redirect(`/auth/login?callbackUrl=/checkout/${bootcampId}`)
     }
 
-    if (userId) {
-        const existingEnrollment = await prisma.enrollment.findUnique({
-            where: {
-                userId_bootcampId: {
-                    userId: userId,
-                    bootcampId: bootcampId
-                }
+    // Check if user is already enrolled
+    const existingEnrollment = await prisma.enrollment.findUnique({
+        where: {
+            userId_bootcampId: {
+                userId: user.id,
+                bootcampId: bootcampId
             }
-        })
+        }
+    })
 
         if (existingEnrollment) {
             return (
@@ -66,7 +68,6 @@ export default async function CheckoutPage({ params }: { params: Promise<{ bootc
                     </div>
                 </div>
             )
-        }
     }
 
     // Geolocation for currency
@@ -75,20 +76,6 @@ export default async function CheckoutPage({ params }: { params: Promise<{ bootc
 
     // Default to NG (Naira), only switch to INTL (USD) if confirmed outside Nigeria
     const region = (country && country !== "NG") ? "INTL" : "NG"
-
-    // Fetch full user details for payment providers
-    if (!userId) {
-        redirect(`/auth/login?callbackUrl=/checkout/${bootcampId}`)
-    }
-
-    // Fetch full user details for payment providers
-    const user = await prisma.user.findUnique({
-        where: { id: userId }
-    })
-
-    if (!user) {
-        redirect(`/auth/login?callbackUrl=/checkout/${bootcampId}`)
-    }
 
     return (
         <CheckoutForm

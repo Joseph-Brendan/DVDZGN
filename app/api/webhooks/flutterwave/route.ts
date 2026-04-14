@@ -27,12 +27,12 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "Invalid currency" }, { status: 400 });
         }
 
-        // Check idempotency
-        const existingEnrollment = await prisma.enrollment.findFirst({
+        // Quick idempotency check by transactionId first (cheapest check)
+        const existingByTxn = await prisma.enrollment.findFirst({
             where: { transactionId: String(transactionId) }
         });
 
-        if (existingEnrollment) {
+        if (existingByTxn) {
             return NextResponse.json({ status: "already_processed" });
         }
 
@@ -53,6 +53,20 @@ export async function POST(req: Request) {
             return NextResponse.json({ error: "No bootcampId provided" }, { status: 400 });
         }
 
+        // Check if already enrolled (combined with idempotency — user+bootcamp pair)
+        const existingEnrollment = await prisma.enrollment.findUnique({
+            where: {
+                userId_bootcampId: {
+                    userId: user.id,
+                    bootcampId: bootcampId
+                }
+            }
+        });
+
+        if (existingEnrollment) {
+            return NextResponse.json({ status: "already_enrolled" });
+        }
+
         // Verify Amount against the correct price based on currency
         const bootcamp = await prisma.bootcamp.findUnique({
             where: { id: bootcampId }
@@ -65,7 +79,7 @@ export async function POST(req: Request) {
         let expectedPrice = currency === "NGN" ? bootcamp.priceNGN : bootcamp.priceUSD;
 
         // Apply discount if a valid discount code was used (from meta)
-        // FIX #4: Webhook only validates + adjusts price — does NOT increment currentUses
+        // Webhook only validates + adjusts price — does NOT increment currentUses
         // The verify API handles incrementing to prevent double-counting
         const discountCode = meta?.discountCode;
         let validatedDiscountCodeId: string | null = null;
@@ -91,15 +105,6 @@ export async function POST(req: Request) {
         if (amount < expectedPrice) {
             console.error(`Webhook: Amount mismatch. Paid ${amount} ${currency}, Expected ${expectedPrice} ${currency}`);
             return NextResponse.json({ error: "Insufficient amount" }, { status: 400 });
-        }
-
-        // Check not already enrolled
-        const checkEnrollment = await prisma.enrollment.findFirst({
-            where: { userId: user.id, bootcampId: bootcampId }
-        });
-
-        if (checkEnrollment) {
-            return NextResponse.json({ status: "already_enrolled" });
         }
 
         await prisma.enrollment.create({

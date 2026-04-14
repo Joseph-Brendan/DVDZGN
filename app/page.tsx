@@ -1,20 +1,6 @@
-import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import { HeroCTA } from "@/components/HeroCTA";
 
-export const dynamic = "force-dynamic";
-export const revalidate = 0;
-
-export default async function Home() {
-    let session = null;
-    try {
-        session = await getServerSession(authOptions);
-    } catch (error) {
-        console.error("Session error:", error);
-        // This usually means invalid cookie, treat as logged out
-    }
-
+export default function Home() {
     return (
         <main className="h-screen w-full flex flex-col items-center justify-center md:justify-start md:pt-56 pt-40 p-4 overflow-hidden relative">
             {/* Background Effects */}
@@ -28,13 +14,7 @@ export default async function Home() {
                 </h1>
 
                 <div className="pt-2">
-                    <Link
-                        href={session ? "/dashboard" : "/auth/signup"}
-                        className="inline-flex items-center gap-2 bg-primary text-white px-8 py-3 rounded-md text-lg font-medium tracking-tight hover:opacity-90 transition-opacity border-[0.5px] border-violet-400"
-                    >
-                        {session ? "Go To Dashboard" : "Get started"}
-                        <ArrowRight className="w-5 h-5" />
-                    </Link>
+                    <HeroCTA />
                 </div>
             </div>
         </main>

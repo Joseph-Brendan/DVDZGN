@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button"
 import { ArrowRight, Calendar } from "lucide-react"
 import { WaitlistButton } from "@/components/bootcamps/WaitlistButton"
 
-export const dynamic = "force-dynamic"
+export const revalidate = 300 // Revalidate every 5 minutes (ISR)
 
 function formatStartDate(date: Date): string {
     const d = new Date(date)
