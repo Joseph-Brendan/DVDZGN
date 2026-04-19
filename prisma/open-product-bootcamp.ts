@@ -4,7 +4,7 @@ const prisma = new PrismaClient()
 
 async function main() {
     const bootcamp = await prisma.bootcamp.update({
-        where: { slug: "product-engineering-bootcamp" },
+        where: { slug: "Product-Design-Engineering" },
         data: {
             title: "Product(UI/UX) Engineering Bootcamp",
             description: "Learn how to Design and Build mobile & Web applications. Master product thinking, market intelligence, UI/UX design, and MVP development.",

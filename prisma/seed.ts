@@ -23,13 +23,13 @@ async function main() {
     ]
 
     const bootcamp = await prisma.bootcamp.upsert({
-        where: { slug: 'product-engineering-bootcamp' },
+        where: { slug: 'Product-Design-Engineering' },
         update: {
             startDate: new Date('2026-02-15T18:00:00Z'),
         },
         create: {
-            title: 'Product Engineering Bootcamp',
-            slug: 'product-engineering-bootcamp',
+            title: 'Product(UI UX) Design & Engineering Bootcamp',
+            slug: 'Product-Design-Engineering',
             description: 'Master full-stack development, design systems, and product thinking. Build real-world applications from scratch.',
             priceNGN: 70000,
             priceUSD: 70,

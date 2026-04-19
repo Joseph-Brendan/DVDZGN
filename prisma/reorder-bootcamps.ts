@@ -7,7 +7,7 @@ async function main() {
 
     // 1. Set Product Engineering to Inactive
     const prodEng = await prisma.bootcamp.update({
-        where: { slug: 'product-engineering-bootcamp' },
+        where: { slug: 'Product-Design-Engineering' },
         data: {
             isActive: false,
             // The UI code already shows "Dates to be announced" for inactive bootcamps, so setting isActive: false is sufficient.

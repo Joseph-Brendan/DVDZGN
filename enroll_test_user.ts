@@ -14,7 +14,7 @@ async function requestEnrollment() {
 
     // 2. Get the Product Engineering Bootcamp
     const bootcamp = await prisma.bootcamp.findUnique({
-        where: { slug: 'product-engineering-bootcamp' }
+        where: { slug: 'Product-Design-Engineering' }
     })
 
     if (!bootcamp) {

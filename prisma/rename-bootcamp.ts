@@ -1,26 +1,25 @@
-import { PrismaClient } from '@prisma/client'
+import { PrismaClient } from "@prisma/client"
 
 const prisma = new PrismaClient()
 
 async function main() {
-    console.log('Renaming "Design to MVP Bootcamp" -> "Design to MVP"')
-
     const bootcamp = await prisma.bootcamp.update({
-        where: { slug: 'design-to-mvp-bootcamp' },
+        where: { slug: "product-engineering-bootcamp" },
         data: {
-            title: 'Design to MVP', // Removed 'Bootcamp' from title
-            // slug remains 'design-to-mvp-bootcamp' to avoid breaking URLs/SEO unless user asks
+            title: "Product(UI UX) Design & Engineering Bootcamp",
+            slug: "Product-Design-Engineering",
         }
     })
-    console.log('Updated:', bootcamp)
+
+    console.log(`✅ Bootcamp renamed:`)
+    console.log(`   Title: ${bootcamp.title}`)
+    console.log(`   Slug: ${bootcamp.slug}`)
+    console.log(`   URL: /bootcamps/${bootcamp.slug}`)
 }
 
 main()
-    .then(async () => {
-        await prisma.$disconnect()
-    })
-    .catch(async (e) => {
-        console.error(e)
-        await prisma.$disconnect()
+    .catch((e) => {
+        console.error("Error:", e)
         process.exit(1)
     })
+    .finally(() => prisma.$disconnect())
