@@ -4,9 +4,9 @@ const prisma = new PrismaClient()
 
 async function main() {
     const bootcamp = await prisma.bootcamp.update({
-        where: { slug: "product-engineering-bootcamp" },
+        where: { slug: "Product-Design-Engineering" },
         data: {
-            title: "Product(UI UX) Design & Engineering Bootcamp",
+            title: "Product(UI UX) Design & Engineering",
             slug: "Product-Design-Engineering",
         }
     })
