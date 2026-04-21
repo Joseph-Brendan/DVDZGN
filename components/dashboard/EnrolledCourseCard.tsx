@@ -34,7 +34,7 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
     const classTime = "2:00 PM - 4:00 PM WAT"
     const duration = bootcamp.duration || "6 Weeks"
     const platform = "Google Meet"
-    const discordLink = "https://discord.gg/Rhj2UA8n"
+    const discordLink = "https://discord.gg/wwz8cq5u45"
     const contactEmail = "learn@devdesignhq.com"
 
     // Use dynamic start date from bootcamp

@@ -39,7 +39,7 @@ Congratulations! You have successfully enrolled in the ${bootcampName}.
 We are so glad to have you join us. This is the beginning of something exciting, and we cannot wait to see what you build.
 
 Here are your next steps:
-- Join our Discord server here: https://discord.gg/Rhj2UA8n
+- Join our Discord server here: https://discord.gg/wwz8cq5u45
 - If you have any questions or need help, reach out to Mrs Victoria, the Programs Manager, at: vyche2010@gmail.com
 
 See you in class!
@@ -55,7 +55,7 @@ The Dev and Design Team
         <p>We are so glad to have you join us. This is the beginning of something exciting, and we cannot wait to see what you build.</p>
         <p>Here are your next steps:</p>
         <ul>
-            <li>Join our <strong>Discord server</strong> here: <a href="https://discord.gg/Rhj2UA8n">https://discord.gg/Rhj2UA8n</a></li>
+            <li>Join our <strong>Discord server</strong> here: <a href="https://discord.gg/wwz8cq5u45">https://discord.gg/wwz8cq5u45</a></li>
             <li>If you have any questions or need help, reach out to <strong>Mrs Victoria</strong>, the Programs Manager, at: <a href="mailto:vyche2010@gmail.com">vyche2010@gmail.com</a></li>
         </ul>
         <p>See you in class!</p>
