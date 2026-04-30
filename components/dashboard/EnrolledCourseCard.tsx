@@ -34,7 +34,8 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
     const classTime = "2:00 PM - 4:00 PM WAT"
     const duration = bootcamp.duration || "6 Weeks"
     const platform = "Google Meet"
-    const discordLink = "https://discord.gg/wwz8cq5u45"
+    const isDesignToMvp = bootcamp.title.toLowerCase().includes("design to mvp")
+    const discordLink = isDesignToMvp ? "https://discord.gg/7XxrmWDz7v" : "https://discord.gg/wwz8cq5u45"
     const contactEmail = "learn@devdesignhq.com"
 
     // Use dynamic start date from bootcamp
@@ -51,8 +52,6 @@ export function EnrolledCourseCard({ bootcamp }: EnrolledCourseCardProps) {
         return `${day}${suffix} ${month} ${year}`
     }
     const displayStartDate = formatDate(startDate)
-
-    const isDesignToMvp = bootcamp.title.toLowerCase().includes("design to mvp")
 
     const handleJoinClass = () => {
         if (isDesignToMvp) {
