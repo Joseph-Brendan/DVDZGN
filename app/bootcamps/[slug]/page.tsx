@@ -117,7 +117,7 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                         </div>
                     </div>
 
-                    {bootcamp.title.toLowerCase().includes('product engineering') && (
+                    {bootcamp.slug === 'Product-Design-Engineering' && (
                         <div className="flex items-start sm:items-center gap-3 bg-zinc-50 border border-zinc-200 text-zinc-700 px-5 py-4 rounded-xl max-w-2xl mt-6">
                             <Calendar className="h-5 w-5 text-primary shrink-0 mt-0.5 sm:mt-0" />
                             <span className="text-sm leading-relaxed">
