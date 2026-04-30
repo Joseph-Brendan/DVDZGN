@@ -117,6 +117,15 @@ export default async function BootcampDetailPage({ params }: { params: Promise<{
                         </div>
                     </div>
 
+                    {bootcamp.title.toLowerCase().includes('product engineering') && (
+                        <div className="flex items-start sm:items-center gap-3 bg-zinc-50 border border-zinc-200 text-zinc-700 px-5 py-4 rounded-xl max-w-2xl mt-6">
+                            <Calendar className="h-5 w-5 text-primary shrink-0 mt-0.5 sm:mt-0" />
+                            <span className="text-sm leading-relaxed">
+                                <strong className="font-semibold text-zinc-900">Live Classes:</strong> Friday, Saturday and Sunday (7-9pm Nigerian Time)
+                            </span>
+                        </div>
+                    )}
+
                     <div className="pt-8 flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
                         {isEnrolled ? (
                             <Button size="lg" disabled className="bg-zinc-100 text-zinc-400 hover:bg-zinc-100 w-full sm:w-auto">
