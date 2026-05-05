@@ -113,18 +113,19 @@ model WaitlistEntry {
 }
 
 model DiscountCode {
-  id              String       @id @default(cuid())
-  code            String       @unique
-  discountPercent Int          // e.g. 20 for 20%
-  description     String?      // e.g. "Alumni 20% discount"
-  isActive        Boolean      @default(true)
-  validFrom       DateTime     @default(now())
-  validUntil      DateTime?
-  maxUses         Int?         // null = unlimited
-  currentUses     Int          @default(0)
-  enrollments     Enrollment[]
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
+  id                     String       @id @default(cuid())
+  code                   String       @unique
+  discountPercent        Int          // e.g. 20 for 20%
+  description            String?      // e.g. "Alumni 20% discount"
+  isActive               Boolean      @default(true)
+  validFrom              DateTime     @default(now())
+  validUntil             DateTime?
+  maxUses                Int?         // null = unlimited
+  currentUses            Int          @default(0)
+  restrictedToBootcampId String?      // If set, only users enrolled in this bootcamp can use this code
+  enrollments            Enrollment[]
+  createdAt              DateTime     @default(now())
+  updatedAt              DateTime     @updatedAt
 }
 
 model PaymentLog {

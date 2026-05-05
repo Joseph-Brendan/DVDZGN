@@ -6,13 +6,13 @@ import { isRateLimited, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
-        // FIX #3: Rate limit — 5 attempts per IP per minute
+        // Rate limit — 5 attempts per IP per minute
         const ip = getClientIp(req)
         if (isRateLimited(`discount:${ip}`, 5, 60_000)) {
             return NextResponse.json({ error: "Too many attempts. Please wait a moment." }, { status: 429 })
         }
 
-        // FIX #3: Require authentication
+        // Require authentication
         const session = await getServerSession(authOptions)
         if (!session?.user?.email) {
             return NextResponse.json({ error: "You must be logged in to use discount codes" }, { status: 401 })
@@ -48,6 +48,33 @@ export async function POST(req: Request) {
 
         if (discountCode.maxUses !== null && discountCode.currentUses >= discountCode.maxUses) {
             return NextResponse.json({ error: "This discount code has reached its usage limit" }, { status: 400 })
+        }
+
+        // If this code is restricted to a specific bootcamp, verify the user is enrolled in it
+        if (discountCode.restrictedToBootcampId) {
+            const user = await prisma.user.findUnique({
+                where: { email: session.user.email },
+                select: { id: true }
+            })
+
+            if (!user) {
+                return NextResponse.json({ error: "User not found" }, { status: 404 })
+            }
+
+            const enrollment = await prisma.enrollment.findUnique({
+                where: {
+                    userId_bootcampId: {
+                        userId: user.id,
+                        bootcampId: discountCode.restrictedToBootcampId
+                    }
+                }
+            })
+
+            if (!enrollment) {
+                return NextResponse.json({
+                    error: "This discount code is only available to enrolled Design To MVP Bootcamp students"
+                }, { status: 403 })
+            }
         }
 
         return NextResponse.json({
