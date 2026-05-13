@@ -6,7 +6,8 @@ import { isRateLimited, getClientIp } from "@/lib/rate-limit"
 
 export async function POST(req: Request) {
     try {
-        const { name, email, password } = await req.json()
+        let { name, email, password } = await req.json()
+        email = email?.toLowerCase()
 
         if (!email || !password || !name) {
             return NextResponse.json(

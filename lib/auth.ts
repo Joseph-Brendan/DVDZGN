@@ -19,9 +19,10 @@ const providers: NextAuthOptions["providers"] = [
                 return null
             }
 
+            const email = credentials.email.toLowerCase()
             const user = await prisma.user.findUnique({
                 where: {
-                    email: credentials.email,
+                    email,
                 },
             })
 
